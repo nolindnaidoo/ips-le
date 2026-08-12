@@ -134,3 +134,152 @@ jobs:
         with:
           tool: cargo-audit
       - run: cargo audit
+
+  # ---------------------------------------------------------------------
+  # The five below exist because something real got through a green suite.
+  # Each one names the bug it would have caught.
+  #
+  # **None of them touches the network**, which is a stronger claim here
+  # than in any sibling: this crate says what an address *is*, and a tool
+  # that found out by asking a resolver would make its answer depend on
+  # the network the auditor happened to be sitting on. Everything below
+  # runs on bytes, on disk or on stdin.
+  # ---------------------------------------------------------------------
+
+  # Inputs a real machine holds and a fixture directory cannot: a
+  # byte-order mark, bytes that are not UTF-8, a UTF-16 log, a FIFO, a
+  # symlink loop, a path over 260 characters, a minified JSON document of
+  # several megabytes. The tree is built at runtime because Windows cannot
+  # check half of it into git, and every case the platform cannot express
+  # is skipped by name rather than passed quietly.
+  #
+  # Found in this release: one locked directory ended the whole run with
+  # exit 2 and an empty report, deleting the audit of every readable file
+  # beside it.
+  hazards:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-2025, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        with:
+          toolchain: stable
+      - name: Hazardous inputs against the built binary
+        run: cargo test --locked --test hazards
+
+  # Behaviour that differs by operating system. envsync-le shipped a
+  # release whose report used `\` on Windows and `/` everywhere else, so
+  # the whole family now asserts it — a report is diffed between machines
+  # and read by someone who does not have the tree.
+  #
+  # Found in this release: report paths were `path.to_string_lossy()`
+  # straight through, so every path in a Windows report would have carried
+  # backslashes.
+  platform:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-2025, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        with:
+          toolchain: stable
+      - name: Separators, case folding, reserved names, CRLF and stdin
+        run: cargo test --locked --test platform
+      # Windows ignores TZ entirely, so a suite that quietly depended on
+      # it would be red there and nowhere else. Both runs are compared
+      # line for line rather than merely required to pass.
+      - name: The suite answers the same with TZ set and unset
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Names and outcomes, not the summary lines: those carry a
+          # duration, and two runs of the same suite never agree on one.
+          names() { grep -E '^test ' | grep -v '^test result:' | sort; }
+          TZ=UTC cargo test --locked -- --test-threads=1 2>&1 \
+            | names > "$RUNNER_TEMP/tz-utc.txt"
+          unset TZ
+          cargo test --locked -- --test-threads=1 2>&1 \
+            | names > "$RUNNER_TEMP/tz-unset.txt"
+          test -s "$RUNNER_TEMP/tz-utc.txt"
+          diff -u "$RUNNER_TEMP/tz-utc.txt" "$RUNNER_TEMP/tz-unset.txt"
+
+  # The corpus pins cases somebody thought of; this generates the ones
+  # nobody did and feeds them to `extract_ips`, the MCP tool that takes
+  # document text and reads no file.
+  #
+  # The target is the scanner's three splitting rules — run-glued-to-a-name,
+  # colon-splits-unless-IPv6-shaped, hyphen-splits-unless-MAC. Each one
+  # slices a byte range out of text somebody else wrote, so a slice off a
+  # character boundary is a panic and a rule that does not terminate is a
+  # CI job that never ends. Every generated document also carries
+  # `0177.0.0.99`, and neither of its two readings may appear in any
+  # answer on either stream — the octal hazard has to hold under generated
+  # input, not only under the cases somebody thought of.
+  fuzz:
+    runs-on: ubuntu-24.04
+    env:
+      IPS_LE_FUZZ_SECONDS: '60'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        with:
+          toolchain: stable
+      - name: Sixty seconds against the scanner's splitting rules
+        run: cargo test --locked --test fuzz -- --test-threads=1 --nocapture
+
+  # A wall-clock ceiling on a corpus generated from a fixed seed, plus
+  # three linearity checks: four times the files, four times the addresses
+  # in one file, and four times the addresses on one **non-ASCII** line.
+  #
+  # The third is the one that matters. `PositionIndex` reports a column in
+  # UTF-16 code units and used to count them from the line start on every
+  # lookup; an ASCII document took an arithmetic fast path, so the cost
+  # only appeared on a long line holding a `café` — 20,000 addresses took
+  # 62 s where 5,000 took 3.7 s. A long-line case written in ASCII, which
+  # is what a sibling has, never reaches it.
+  budget:
+    runs-on: ubuntu-24.04
+    env:
+      IPS_LE_BUDGET: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        with:
+          toolchain: stable
+      - name: 500 files inside the budget, and linear in all three directions
+        run: cargo test --locked --test budget -- --test-threads=1 --nocapture
+
+  # Does the crate open what it claims?
+  #
+  # Every kind, every class, every refusal reason and every advertised
+  # format has to be reachable from a real fixture through the walk and
+  # the built binary — and nothing the code produces may be missing from
+  # those lists. A class nothing reaches is a class this tool claims and
+  # has never produced; a value produced and undocumented is a report that
+  # describes nine classes and ships ten.
+  #
+  # The marker check is not decoration: `cargo test <filter>` exits 0 when
+  # the filter matches nothing, so a renamed test would pass this job
+  # silently.
+  coverage-matrix:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        with:
+          toolchain: stable
+      - name: Every kind, class, refusal reason and format reader
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test --locked --test coverage_matrix -- --nocapture 2>&1 \
+            | tee "$RUNNER_TEMP/coverage-matrix.txt"
+          grep -q 'coverage-matrix: 4 kinds, 10 classes, 6 refusal reasons' \
+            "$RUNNER_TEMP/coverage-matrix.txt"
+          grep -q 'coverage-matrix: 8 format readers' "$RUNNER_TEMP/coverage-matrix.txt"
