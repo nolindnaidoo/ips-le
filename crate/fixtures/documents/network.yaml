@@ -1,0 +1,13 @@
+services:
+  api:
+    bind: 0.0.0.0
+    upstream: 10.20.30.40
+  cache:
+    host: 127.0.0.1
+    peer: 2001:0db8::0001
+allow:
+  - 10.0.0.0/8
+  - 192.168.0.0/16
+metadata: 169.254.169.254
+hardware: aa:bb:cc:dd:ee:ff
+version: 10.0.1

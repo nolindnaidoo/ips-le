@@ -1,0 +1,76 @@
+[package]
+name = "ips-le"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT"
+readme = "README.md"
+description = "Find every IP address, CIDR block and MAC address in a tree, normalized and classified"
+authors = ["Nolin D Naidoo"]
+homepage = "https://letools.dev/tools/ips-le"
+repository = "https://github.com/nolindnaidoo/ips-le"
+keywords = ["ip", "ipv6", "cidr", "extract", "cli"]
+categories = [
+    "command-line-utilities",
+    "development-tools",
+    "network-programming",
+]
+# What a consumer gets, and why.
+#
+# Ships: src/, Cargo.toml, Cargo.lock, LICENSE, README.md — needed to
+# build the binary. SPEC.md and CHANGELOG.md — the behavioural contract
+# someone scripting against the exit codes and the refusal reasons
+# needs. tests/ and fixtures/ — not needed to *build*, but needed to
+# *verify*: `cargo test` on the unpacked tarball runs the whole corpus,
+# so the RFC 5952 and refusal claims in the README are checkable by
+# whoever installed it rather than taken on trust.
+#
+# Excluded: AGENTS.md is how this repo is worked on, not how the tool is
+# used. rust-toolchain.toml is a convenience for contributors to *this*
+# checkout; shipped, it would pin the toolchain of anyone who unpacks or
+# vendors the crate, which is not this crate's business.
+exclude = ["AGENTS.md", "rust-toolchain.toml"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# JSON/JSONC with node ranges. The only format here that needs a real
+# parser: a minified document is one line, so a line-oriented key reader
+# answers nothing useful for it, and comments and trailing commas are
+# ordinary in the config files this is pointed at. Every other format is
+# read line by line in its own module — see `extract/` — which is why
+# there is one parser dependency here and not six.
+jsonc-parser = "0.33"
+# The walker. `ignore` is ripgrep's, so "what this tool walks" and "what
+# ripgrep walks" are the same answer — which is the answer a person
+# auditing a repository already has in their head.
+ignore = "0.4"
+
+# No `ipnet`, no `cidr`, no `regex`, deliberately.
+#
+# `std::net::{Ipv4Addr, Ipv6Addr}` parses both families, rejects a
+# leading zero (which is the octal hazard this tool refuses on, so the
+# standard library cannot resolve one behind our back), and prints IPv6
+# per RFC 5952 — pinned in `fixtures/normalization.json` so a future
+# std change fails a test rather than a user's diff. CIDR arithmetic is
+# a mask, an AND and an OR over a `u32` or a `u128`; a crate for that
+# would be more surface than sum. And the shapes here — `::`
+# compression, six hex pairs, a dotted quad that may be a version — are
+# decided by a hand-written scanner because an IPv6 regex is a known
+# way to be confidently wrong.
+
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1
+# On by default in debug and off in release, which is exactly backwards
+# for this crate: the CIDR arithmetic shifts by a prefix length, and a
+# wrong answer that wraps silently is the failure mode a tool whose
+# whole promise is "never guess" cannot have.
+overflow-checks = true
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }

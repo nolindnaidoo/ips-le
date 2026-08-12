@@ -1,0 +1,612 @@
+[
+	{
+		"name": "a json config",
+		"file": "network.json",
+		"arguments": {
+			"format": "json"
+		},
+		"expected": {
+			"data": {
+				"addresses": [
+					{
+						"cidr": null,
+						"class": "reserved",
+						"column": 23,
+						"key": "services.api.bind",
+						"kind": "ipv4",
+						"line": 3,
+						"normalized": "0.0.0.0",
+						"refused": null,
+						"text": "0.0.0.0"
+					},
+					{
+						"cidr": null,
+						"class": "private",
+						"column": 46,
+						"key": "services.api.upstream",
+						"kind": "ipv4",
+						"line": 3,
+						"normalized": "10.20.30.40",
+						"refused": null,
+						"text": "10.20.30.40"
+					},
+					{
+						"cidr": null,
+						"class": "loopback",
+						"column": 25,
+						"key": "services.cache.host",
+						"kind": "ipv4",
+						"line": 4,
+						"normalized": "127.0.0.1",
+						"refused": null,
+						"text": "127.0.0.1"
+					},
+					{
+						"cidr": null,
+						"class": "documentation",
+						"column": 46,
+						"key": "services.cache.peer",
+						"kind": "ipv6",
+						"line": 4,
+						"normalized": "2001:db8::1",
+						"refused": null,
+						"text": "2001:0db8:0000:0000:0000:0000:0000:0001"
+					},
+					{
+						"cidr": {
+							"broadcast": "10.255.255.255",
+							"hosts": "16777216",
+							"last": "10.255.255.255",
+							"network": "10.0.0.0",
+							"prefix": 8
+						},
+						"class": "private",
+						"column": 14,
+						"key": "allow.[0]",
+						"kind": "cidr",
+						"line": 6,
+						"normalized": "10.0.0.0/8",
+						"refused": null,
+						"text": "10.0.0.0/8"
+					},
+					{
+						"cidr": {
+							"broadcast": "192.168.255.255",
+							"hosts": "65536",
+							"last": "192.168.255.255",
+							"network": "192.168.0.0",
+							"prefix": 16
+						},
+						"class": "private",
+						"column": 28,
+						"key": "allow.[1]",
+						"kind": "cidr",
+						"line": 6,
+						"normalized": "192.168.0.0/16",
+						"refused": null,
+						"text": "192.168.0.0/16"
+					},
+					{
+						"cidr": {
+							"broadcast": null,
+							"hosts": "79228162514264337593543950336",
+							"last": "2001:db8:ffff:ffff:ffff:ffff:ffff:ffff",
+							"network": "2001:db8::",
+							"prefix": 32
+						},
+						"class": "documentation",
+						"column": 46,
+						"key": "allow.[2]",
+						"kind": "cidr",
+						"line": 6,
+						"normalized": "2001:db8::/32",
+						"refused": null,
+						"text": "2001:db8::/32"
+					},
+					{
+						"cidr": null,
+						"class": "link-local",
+						"column": 16,
+						"key": "metadata",
+						"kind": "ipv4",
+						"line": 7,
+						"normalized": "169.254.169.254",
+						"refused": null,
+						"text": "169.254.169.254"
+					},
+					{
+						"cidr": null,
+						"class": "global",
+						"column": 16,
+						"key": "hardware",
+						"kind": "mac",
+						"line": 8,
+						"normalized": "aa:bb:cc:dd:ee:ff",
+						"refused": null,
+						"text": "AA-BB-CC-DD-EE-FF"
+					}
+				],
+				"format": "json",
+				"refused": 0
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 9,
+				"tool": "extract_ips",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "a log file",
+		"file": "access.log",
+		"arguments": {
+			"format": "log"
+		},
+		"expected": {
+			"data": {
+				"addresses": [
+					{
+						"cidr": null,
+						"class": "private",
+						"column": 1,
+						"key": null,
+						"kind": "ipv4",
+						"line": 1,
+						"normalized": "192.168.1.10",
+						"refused": null,
+						"text": "192.168.1.10"
+					},
+					{
+						"cidr": null,
+						"class": "documentation",
+						"column": 48,
+						"key": "remote_addr",
+						"kind": "ipv4",
+						"line": 2,
+						"normalized": "203.0.113.45",
+						"refused": null,
+						"text": "203.0.113.45"
+					},
+					{
+						"cidr": null,
+						"class": "private",
+						"column": 70,
+						"key": "upstream",
+						"kind": "ipv4",
+						"line": 2,
+						"normalized": "10.20.30.40",
+						"refused": null,
+						"text": "10.20.30.40"
+					},
+					{
+						"cidr": null,
+						"class": "documentation",
+						"column": 43,
+						"key": "req.ip",
+						"kind": "ipv6",
+						"line": 3,
+						"normalized": "2001:db8::1",
+						"refused": null,
+						"text": "2001:0db8::0001"
+					},
+					{
+						"cidr": null,
+						"class": "cgnat",
+						"column": 24,
+						"key": "remote_addr",
+						"kind": "ipv4",
+						"line": 4,
+						"normalized": "100.64.0.9",
+						"refused": null,
+						"text": "100.64.0.9"
+					},
+					{
+						"cidr": null,
+						"class": "private",
+						"column": 37,
+						"key": "SRC",
+						"kind": "ipv4",
+						"line": 5,
+						"normalized": "10.0.0.5",
+						"refused": null,
+						"text": "10.0.0.5"
+					},
+					{
+						"cidr": null,
+						"class": "global",
+						"column": 50,
+						"key": "DST",
+						"kind": "ipv4",
+						"line": 5,
+						"normalized": "8.8.8.8",
+						"refused": null,
+						"text": "8.8.8.8"
+					},
+					{
+						"cidr": null,
+						"class": "global",
+						"column": 62,
+						"key": "MAC",
+						"kind": "mac",
+						"line": 5,
+						"normalized": "aa:bb:cc:dd:ee:ff",
+						"refused": null,
+						"text": "aa:bb:cc:dd:ee:ff"
+					}
+				],
+				"format": "log",
+				"refused": 0
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 8,
+				"tool": "extract_ips",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "every ambiguity, refused by name",
+		"file": "ambiguous.txt",
+		"arguments": {},
+		"expected": {
+			"data": {
+				"addresses": [
+					{
+						"cidr": null,
+						"class": null,
+						"column": 1,
+						"key": null,
+						"kind": "ipv4",
+						"line": 1,
+						"normalized": null,
+						"refused": {
+							"detail": "010.1.1.1 has a leading zero. Some resolvers read a leading-zero octet as octal and some as decimal, so this text has two addresses and no way to choose.",
+							"reason": "octal_hazard"
+						},
+						"text": "010.1.1.1"
+					},
+					{
+						"cidr": null,
+						"class": null,
+						"column": 1,
+						"key": null,
+						"kind": "ipv4",
+						"line": 2,
+						"normalized": null,
+						"refused": {
+							"detail": "0177.0.0.1 has a leading zero. Some resolvers read a leading-zero octet as octal and some as decimal, so this text has two addresses and no way to choose.",
+							"reason": "octal_hazard"
+						},
+						"text": "0177.0.0.1"
+					},
+					{
+						"cidr": null,
+						"class": null,
+						"column": 1,
+						"key": null,
+						"kind": null,
+						"line": 3,
+						"normalized": null,
+						"refused": {
+							"detail": "10.0.1 has three groups: a version string, or an IPv4 address missing an octet. Nothing here says which.",
+							"reason": "ambiguous_version"
+						},
+						"text": "10.0.1"
+					},
+					{
+						"cidr": null,
+						"class": null,
+						"column": 1,
+						"key": null,
+						"kind": "ipv4",
+						"line": 4,
+						"normalized": null,
+						"refused": {
+							"detail": "256.1.1.1 has four groups and is not an IPv4 address.",
+							"reason": "malformed_address"
+						},
+						"text": "256.1.1.1"
+					},
+					{
+						"cidr": null,
+						"class": null,
+						"column": 1,
+						"key": null,
+						"kind": "ipv6",
+						"line": 5,
+						"normalized": null,
+						"refused": {
+							"detail": "2001:db8:::1 has the shape of an IPv6 address and is not one.",
+							"reason": "malformed_address"
+						},
+						"text": "2001:db8:::1"
+					},
+					{
+						"cidr": null,
+						"class": null,
+						"column": 1,
+						"key": null,
+						"kind": "cidr",
+						"line": 6,
+						"normalized": null,
+						"refused": {
+							"detail": "an IPv4 prefix is 0 to 32; 10.0.0.0/33 names 33.",
+							"reason": "prefix_out_of_range"
+						},
+						"text": "10.0.0.0/33"
+					},
+					{
+						"cidr": null,
+						"class": null,
+						"column": 1,
+						"key": null,
+						"kind": "cidr",
+						"line": 7,
+						"normalized": null,
+						"refused": {
+							"detail": "an IPv6 prefix is 0 to 128; 2001:db8::/129 names 129.",
+							"reason": "prefix_out_of_range"
+						},
+						"text": "2001:db8::/129"
+					},
+					{
+						"cidr": null,
+						"class": null,
+						"column": 1,
+						"key": null,
+						"kind": null,
+						"line": 8,
+						"normalized": null,
+						"refused": {
+							"detail": "deadbeefcafe is twelve hex digits with no separators: a MAC address written bare, or the front of a hash. Nothing here says which.",
+							"reason": "mac_ambiguous"
+						},
+						"text": "deadbeefcafe"
+					}
+				],
+				"format": "unknown",
+				"refused": 8
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 8,
+				"tool": "extract_ips",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "a document with no addresses",
+		"arguments": {
+			"content": "no addresses in this prose"
+		},
+		"expected": {
+			"data": {
+				"addresses": [],
+				"format": "unknown",
+				"refused": 0
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 0,
+				"tool": "extract_ips",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "an ipv6 address normalized per rfc 5952",
+		"arguments": {
+			"content": "peer 2001:0DB8:0000:0000:0000:0000:0000:0001 up"
+		},
+		"expected": {
+			"data": {
+				"addresses": [
+					{
+						"cidr": null,
+						"class": "documentation",
+						"column": 6,
+						"key": null,
+						"kind": "ipv6",
+						"line": 1,
+						"normalized": "2001:db8::1",
+						"refused": null,
+						"text": "2001:0DB8:0000:0000:0000:0000:0000:0001"
+					}
+				],
+				"format": "unknown",
+				"refused": 0
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 1,
+				"tool": "extract_ips",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "a cidr block with its arithmetic",
+		"arguments": {
+			"content": "allow 10.0.0.0/8"
+		},
+		"expected": {
+			"data": {
+				"addresses": [
+					{
+						"cidr": {
+							"broadcast": "10.255.255.255",
+							"hosts": "16777216",
+							"last": "10.255.255.255",
+							"network": "10.0.0.0",
+							"prefix": 8
+						},
+						"class": "private",
+						"column": 7,
+						"key": null,
+						"kind": "cidr",
+						"line": 1,
+						"normalized": "10.0.0.0/8",
+						"refused": null,
+						"text": "10.0.0.0/8"
+					}
+				],
+				"format": "unknown",
+				"refused": 0
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 1,
+				"tool": "extract_ips",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "a class filter never hides a refusal",
+		"arguments": {
+			"class": [
+				"global"
+			],
+			"content": "8.8.8.8 10.0.0.1 010.1.1.1"
+		},
+		"expected": {
+			"data": {
+				"addresses": [
+					{
+						"cidr": null,
+						"class": "global",
+						"column": 1,
+						"key": null,
+						"kind": "ipv4",
+						"line": 1,
+						"normalized": "8.8.8.8",
+						"refused": null,
+						"text": "8.8.8.8"
+					},
+					{
+						"cidr": null,
+						"class": null,
+						"column": 18,
+						"key": null,
+						"kind": "ipv4",
+						"line": 1,
+						"normalized": null,
+						"refused": {
+							"detail": "010.1.1.1 has a leading zero. Some resolvers read a leading-zero octet as octal and some as decimal, so this text has two addresses and no way to choose.",
+							"reason": "octal_hazard"
+						},
+						"text": "010.1.1.1"
+					}
+				],
+				"format": "unknown",
+				"refused": 1
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 2,
+				"tool": "extract_ips",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "a format is inferred from a filename",
+		"arguments": {
+			"filename": "service.env",
+			"content": "DB_HOST=10.0.0.5\n"
+		},
+		"expected": {
+			"data": {
+				"addresses": [
+					{
+						"cidr": null,
+						"class": "private",
+						"column": 9,
+						"key": "DB_HOST",
+						"kind": "ipv4",
+						"line": 1,
+						"normalized": "10.0.0.5",
+						"refused": null,
+						"text": "10.0.0.5"
+					}
+				],
+				"format": "env",
+				"refused": 0
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 1,
+				"tool": "extract_ips",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "a broken json document keeps its addresses",
+		"arguments": {
+			"format": "json",
+			"content": "{not json 10.0.0.5"
+		},
+		"expected": {
+			"data": {
+				"addresses": [
+					{
+						"cidr": null,
+						"class": "private",
+						"column": 11,
+						"key": null,
+						"kind": "ipv4",
+						"line": 1,
+						"normalized": "10.0.0.5",
+						"refused": null,
+						"text": "10.0.0.5"
+					}
+				],
+				"format": "json",
+				"refused": 0
+			},
+			"diagnostics": [
+				{
+					"code": "unparsed",
+					"message": "could not read this as JSON, so no key paths are reported: Expected string for object property on line 1 column 2",
+					"severity": "warning"
+				}
+			],
+			"meta": {
+				"count": 1,
+				"tool": "extract_ips",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "a cap that is not a positive integer",
+		"arguments": {
+			"maxResults": 1.5,
+			"content": "10.0.0.1"
+		},
+		"expectedError": "maxResults must be a positive integer"
+	},
+	{
+		"name": "a filter name nothing recognises",
+		"arguments": {
+			"kind": [
+				"ipv5"
+			],
+			"content": "10.0.0.1"
+		},
+		"expectedError": "ipv5 is not a kind: ipv4, ipv6, cidr, mac"
+	}
+]

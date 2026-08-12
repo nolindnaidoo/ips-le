@@ -1,0 +1,1148 @@
+{
+	"normalization": [
+		{
+			"input": "2001:0db8:0000:0000:0000:0000:0000:0001",
+			"expected": "2001:db8::1",
+			"why": "RFC 5952 2.1/2.2: leading zeros are dropped and the zero run is compressed"
+		},
+		{
+			"input": "2001:DB8::1",
+			"expected": "2001:db8::1",
+			"why": "RFC 5952 4.3: hexadecimal is lowercase"
+		},
+		{
+			"input": "2001:db8:0:0:1:0:0:1",
+			"expected": "2001:db8::1:0:0:1",
+			"why": "RFC 5952 4.2.3: two runs of equal length, the leftmost is compressed"
+		},
+		{
+			"input": "1:0:0:2:0:0:0:3",
+			"expected": "1:0:0:2::3",
+			"why": "RFC 5952 4.2.3: the longest run wins, not the first"
+		},
+		{
+			"input": "2001:db8:0:1:1:1:1:1",
+			"expected": "2001:db8:0:1:1:1:1:1",
+			"why": "RFC 5952 4.2.2: a single zero group is never compressed"
+		},
+		{
+			"input": "0:0:0:0:0:ffff:192.0.2.128",
+			"expected": "::ffff:192.0.2.128",
+			"why": "RFC 5952 5: an IPv4-mapped address keeps its dotted tail"
+		},
+		{
+			"input": "::ffff:192.0.2.128",
+			"expected": "::ffff:192.0.2.128",
+			"why": "already canonical, and must stay that way"
+		},
+		{
+			"input": "FF01:0:0:0:0:0:0:101",
+			"expected": "ff01::101",
+			"why": "RFC 5952 4.1/4.3 together"
+		},
+		{
+			"input": "::",
+			"expected": "::",
+			"why": "the unspecified address is all zeros and compresses to nothing"
+		},
+		{
+			"input": "::1",
+			"expected": "::1",
+			"why": "loopback, already canonical"
+		},
+		{
+			"input": "AA-BB-CC-DD-EE-FF",
+			"expected": "aa:bb:cc:dd:ee:ff",
+			"why": "a MAC address is lowercased and reported colon-separated whatever it was written with"
+		},
+		{
+			"input": "2001:0DB8::/32",
+			"expected": "2001:db8::/32",
+			"why": "a block's base is canonicalized like any other address"
+		}
+	],
+	"classification": [
+		{
+			"input": "127.0.0.1",
+			"kind": "ipv4",
+			"class": "loopback"
+		},
+		{
+			"input": "127.255.255.254",
+			"kind": "ipv4",
+			"class": "loopback"
+		},
+		{
+			"input": "10.1.2.3",
+			"kind": "ipv4",
+			"class": "private"
+		},
+		{
+			"input": "172.16.0.1",
+			"kind": "ipv4",
+			"class": "private"
+		},
+		{
+			"input": "172.31.255.255",
+			"kind": "ipv4",
+			"class": "private"
+		},
+		{
+			"input": "172.32.0.1",
+			"kind": "ipv4",
+			"class": "global"
+		},
+		{
+			"input": "192.168.0.1",
+			"kind": "ipv4",
+			"class": "private"
+		},
+		{
+			"input": "169.254.169.254",
+			"kind": "ipv4",
+			"class": "link-local"
+		},
+		{
+			"input": "100.64.0.1",
+			"kind": "ipv4",
+			"class": "cgnat"
+		},
+		{
+			"input": "100.127.255.255",
+			"kind": "ipv4",
+			"class": "cgnat"
+		},
+		{
+			"input": "100.128.0.1",
+			"kind": "ipv4",
+			"class": "global"
+		},
+		{
+			"input": "224.0.0.1",
+			"kind": "ipv4",
+			"class": "multicast"
+		},
+		{
+			"input": "255.255.255.255",
+			"kind": "ipv4",
+			"class": "broadcast"
+		},
+		{
+			"input": "192.0.2.5",
+			"kind": "ipv4",
+			"class": "documentation"
+		},
+		{
+			"input": "198.51.100.5",
+			"kind": "ipv4",
+			"class": "documentation"
+		},
+		{
+			"input": "203.0.113.5",
+			"kind": "ipv4",
+			"class": "documentation"
+		},
+		{
+			"input": "0.0.0.0",
+			"kind": "ipv4",
+			"class": "reserved"
+		},
+		{
+			"input": "192.0.0.8",
+			"kind": "ipv4",
+			"class": "reserved"
+		},
+		{
+			"input": "198.18.0.1",
+			"kind": "ipv4",
+			"class": "reserved"
+		},
+		{
+			"input": "240.0.0.1",
+			"kind": "ipv4",
+			"class": "reserved"
+		},
+		{
+			"input": "8.8.8.8",
+			"kind": "ipv4",
+			"class": "global"
+		},
+		{
+			"input": "::1",
+			"kind": "ipv6",
+			"class": "loopback"
+		},
+		{
+			"input": "::",
+			"kind": "ipv6",
+			"class": "reserved"
+		},
+		{
+			"input": "fe80::1",
+			"kind": "ipv6",
+			"class": "link-local"
+		},
+		{
+			"input": "fd00::1",
+			"kind": "ipv6",
+			"class": "unique-local"
+		},
+		{
+			"input": "ff02::1",
+			"kind": "ipv6",
+			"class": "multicast"
+		},
+		{
+			"input": "2001:db8::1",
+			"kind": "ipv6",
+			"class": "documentation"
+		},
+		{
+			"input": "2001:0:1::1",
+			"kind": "ipv6",
+			"class": "reserved"
+		},
+		{
+			"input": "100::1",
+			"kind": "ipv6",
+			"class": "reserved"
+		},
+		{
+			"input": "2606:4700:4700::1111",
+			"kind": "ipv6",
+			"class": "global"
+		},
+		{
+			"input": "::ffff:127.0.0.1",
+			"kind": "ipv6",
+			"class": "loopback"
+		},
+		{
+			"input": "::ffff:169.254.169.254",
+			"kind": "ipv6",
+			"class": "link-local"
+		},
+		{
+			"input": "10.0.0.0/8",
+			"kind": "cidr",
+			"class": "private"
+		},
+		{
+			"input": "127.0.0.0/8",
+			"kind": "cidr",
+			"class": "loopback"
+		},
+		{
+			"input": "2001:db8::/32",
+			"kind": "cidr",
+			"class": "documentation"
+		},
+		{
+			"input": "0.0.0.0/0",
+			"kind": "cidr",
+			"class": "reserved"
+		},
+		{
+			"input": "aa:bb:cc:dd:ee:ff",
+			"kind": "mac",
+			"class": "global"
+		},
+		{
+			"input": "ff:ff:ff:ff:ff:ff",
+			"kind": "mac",
+			"class": "broadcast"
+		},
+		{
+			"input": "01:00:5e:00:00:01",
+			"kind": "mac",
+			"class": "multicast"
+		}
+	],
+	"ambiguity": [
+		{
+			"input": "010.1.1.1",
+			"reason": "octal_hazard"
+		},
+		{
+			"input": "0177.0.0.1",
+			"reason": "octal_hazard"
+		},
+		{
+			"input": "192.168.001.1",
+			"reason": "octal_hazard"
+		},
+		{
+			"input": "010.0.0.0/8",
+			"reason": "octal_hazard"
+		},
+		{
+			"input": "10.0.1",
+			"reason": "ambiguous_version"
+		},
+		{
+			"input": "1.2.3",
+			"reason": "ambiguous_version"
+		},
+		{
+			"input": "256.1.1.1",
+			"reason": "malformed_address"
+		},
+		{
+			"input": "1.2.3.9999",
+			"reason": "malformed_address"
+		},
+		{
+			"input": "2001:db8:::1",
+			"reason": "malformed_address"
+		},
+		{
+			"input": "12345::1",
+			"reason": "malformed_address"
+		},
+		{
+			"input": "1::2::3",
+			"reason": "malformed_address"
+		},
+		{
+			"input": "10.0.0.0/33",
+			"reason": "prefix_out_of_range"
+		},
+		{
+			"input": "2001:db8::/129",
+			"reason": "prefix_out_of_range"
+		},
+		{
+			"input": "deadbeefcafe",
+			"reason": "mac_ambiguous"
+		},
+		{
+			"input": "2130706433",
+			"reason": "integer_form",
+			"key": "server.bind_ip"
+		},
+		{
+			"input": "3232235777",
+			"reason": "integer_form",
+			"key": "REMOTE_ADDR"
+		}
+	],
+	"documents": [
+		{
+			"name": "network.json as json",
+			"file": "network.json",
+			"format": "json",
+			"expected": [
+				{
+					"text": "0.0.0.0",
+					"line": 3,
+					"column": 23,
+					"key": "services.api.bind",
+					"normalized": "0.0.0.0",
+					"class": "reserved",
+					"refused": null
+				},
+				{
+					"text": "10.20.30.40",
+					"line": 3,
+					"column": 46,
+					"key": "services.api.upstream",
+					"normalized": "10.20.30.40",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "127.0.0.1",
+					"line": 4,
+					"column": 25,
+					"key": "services.cache.host",
+					"normalized": "127.0.0.1",
+					"class": "loopback",
+					"refused": null
+				},
+				{
+					"text": "2001:0db8:0000:0000:0000:0000:0000:0001",
+					"line": 4,
+					"column": 46,
+					"key": "services.cache.peer",
+					"normalized": "2001:db8::1",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.0/8",
+					"line": 6,
+					"column": 14,
+					"key": "allow.[0]",
+					"normalized": "10.0.0.0/8",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "192.168.0.0/16",
+					"line": 6,
+					"column": 28,
+					"key": "allow.[1]",
+					"normalized": "192.168.0.0/16",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "2001:db8::/32",
+					"line": 6,
+					"column": 46,
+					"key": "allow.[2]",
+					"normalized": "2001:db8::/32",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "169.254.169.254",
+					"line": 7,
+					"column": 16,
+					"key": "metadata",
+					"normalized": "169.254.169.254",
+					"class": "link-local",
+					"refused": null
+				},
+				{
+					"text": "AA-BB-CC-DD-EE-FF",
+					"line": 8,
+					"column": 16,
+					"key": "hardware",
+					"normalized": "aa:bb:cc:dd:ee:ff",
+					"class": "global",
+					"refused": null
+				}
+			]
+		},
+		{
+			"name": "network.yaml as yaml",
+			"file": "network.yaml",
+			"format": "yaml",
+			"expected": [
+				{
+					"text": "0.0.0.0",
+					"line": 3,
+					"column": 11,
+					"key": "services.api.bind",
+					"normalized": "0.0.0.0",
+					"class": "reserved",
+					"refused": null
+				},
+				{
+					"text": "10.20.30.40",
+					"line": 4,
+					"column": 15,
+					"key": "services.api.upstream",
+					"normalized": "10.20.30.40",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "127.0.0.1",
+					"line": 6,
+					"column": 11,
+					"key": "services.cache.host",
+					"normalized": "127.0.0.1",
+					"class": "loopback",
+					"refused": null
+				},
+				{
+					"text": "2001:0db8::0001",
+					"line": 7,
+					"column": 11,
+					"key": "services.cache.peer",
+					"normalized": "2001:db8::1",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.0/8",
+					"line": 9,
+					"column": 5,
+					"key": "allow",
+					"normalized": "10.0.0.0/8",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "192.168.0.0/16",
+					"line": 10,
+					"column": 5,
+					"key": "allow",
+					"normalized": "192.168.0.0/16",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "169.254.169.254",
+					"line": 11,
+					"column": 11,
+					"key": "metadata",
+					"normalized": "169.254.169.254",
+					"class": "link-local",
+					"refused": null
+				},
+				{
+					"text": "aa:bb:cc:dd:ee:ff",
+					"line": 12,
+					"column": 11,
+					"key": "hardware",
+					"normalized": "aa:bb:cc:dd:ee:ff",
+					"class": "global",
+					"refused": null
+				}
+			]
+		},
+		{
+			"name": "network.toml as toml",
+			"file": "network.toml",
+			"format": "toml",
+			"expected": [
+				{
+					"text": "169.254.169.254",
+					"line": 1,
+					"column": 13,
+					"key": "metadata",
+					"normalized": "169.254.169.254",
+					"class": "link-local",
+					"refused": null
+				},
+				{
+					"text": "0.0.0.0",
+					"line": 5,
+					"column": 9,
+					"key": "services.api.bind",
+					"normalized": "0.0.0.0",
+					"class": "reserved",
+					"refused": null
+				},
+				{
+					"text": "10.20.30.40",
+					"line": 6,
+					"column": 13,
+					"key": "services.api.upstream",
+					"normalized": "10.20.30.40",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "127.0.0.1",
+					"line": 9,
+					"column": 9,
+					"key": "services.cache.host",
+					"normalized": "127.0.0.1",
+					"class": "loopback",
+					"refused": null
+				},
+				{
+					"text": "2001:0db8::0001",
+					"line": 10,
+					"column": 9,
+					"key": "services.cache.peer",
+					"normalized": "2001:db8::1",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.0/8",
+					"line": 14,
+					"column": 4,
+					"key": "firewall.allow",
+					"normalized": "10.0.0.0/8",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "192.168.0.0/16",
+					"line": 15,
+					"column": 4,
+					"key": "firewall.allow",
+					"normalized": "192.168.0.0/16",
+					"class": "private",
+					"refused": null
+				}
+			]
+		},
+		{
+			"name": "network.ini as ini",
+			"file": "network.ini",
+			"format": "ini",
+			"expected": [
+				{
+					"text": "169.254.169.254",
+					"line": 2,
+					"column": 12,
+					"key": "metadata",
+					"normalized": "169.254.169.254",
+					"class": "link-local",
+					"refused": null
+				},
+				{
+					"text": "0.0.0.0",
+					"line": 6,
+					"column": 8,
+					"key": "api.bind",
+					"normalized": "0.0.0.0",
+					"class": "reserved",
+					"refused": null
+				},
+				{
+					"text": "10.20.30.40",
+					"line": 7,
+					"column": 12,
+					"key": "api.upstream",
+					"normalized": "10.20.30.40",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "127.0.0.1",
+					"line": 10,
+					"column": 8,
+					"key": "cache.host",
+					"normalized": "127.0.0.1",
+					"class": "loopback",
+					"refused": null
+				},
+				{
+					"text": "2001:0db8::0001",
+					"line": 11,
+					"column": 8,
+					"key": "cache.peer",
+					"normalized": "2001:db8::1",
+					"class": "documentation",
+					"refused": null
+				}
+			]
+		},
+		{
+			"name": "network.env as dotenv",
+			"file": "network.env",
+			"format": "env",
+			"expected": [
+				{
+					"text": "0.0.0.0",
+					"line": 2,
+					"column": 9,
+					"key": "BIND_IP",
+					"normalized": "0.0.0.0",
+					"class": "reserved",
+					"refused": null
+				},
+				{
+					"text": "10.20.30.40",
+					"line": 3,
+					"column": 15,
+					"key": "UPSTREAM_HOST",
+					"normalized": "10.20.30.40",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "127.0.0.1",
+					"line": 4,
+					"column": 12,
+					"key": "CACHE_HOST",
+					"normalized": "127.0.0.1",
+					"class": "loopback",
+					"refused": null
+				},
+				{
+					"text": "2001:0db8::0001",
+					"line": 5,
+					"column": 11,
+					"key": "PEER_ADDR",
+					"normalized": "2001:db8::1",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "169.254.169.254",
+					"line": 6,
+					"column": 18,
+					"key": "METADATA_ADDRESS",
+					"normalized": "169.254.169.254",
+					"class": "link-local",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.0/8",
+					"line": 7,
+					"column": 12,
+					"key": "ALLOW_CIDR",
+					"normalized": "10.0.0.0/8",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "10.20.30.41",
+					"line": 9,
+					"column": 31,
+					"key": "DATABASE_URL",
+					"normalized": "10.20.30.41",
+					"class": "private",
+					"refused": null
+				}
+			]
+		},
+		{
+			"name": "network.csv as csv",
+			"file": "network.csv",
+			"format": "csv",
+			"expected": [
+				{
+					"text": "10.20.30.40",
+					"line": 2,
+					"column": 5,
+					"key": "[1][1]",
+					"normalized": "10.20.30.40",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "10.20.30.1",
+					"line": 2,
+					"column": 17,
+					"key": "[1][2]",
+					"normalized": "10.20.30.1",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "127.0.0.1",
+					"line": 3,
+					"column": 7,
+					"key": "[2][1]",
+					"normalized": "127.0.0.1",
+					"class": "loopback",
+					"refused": null
+				},
+				{
+					"text": "2001:0db8::0001",
+					"line": 4,
+					"column": 6,
+					"key": "[3][1]",
+					"normalized": "2001:db8::1",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "fe80::1",
+					"line": 4,
+					"column": 22,
+					"key": "[3][2]",
+					"normalized": "fe80::1",
+					"class": "link-local",
+					"refused": null
+				}
+			]
+		},
+		{
+			"name": "access.log as log",
+			"file": "access.log",
+			"format": "log",
+			"expected": [
+				{
+					"text": "192.168.1.10",
+					"line": 1,
+					"column": 1,
+					"key": null,
+					"normalized": "192.168.1.10",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "203.0.113.45",
+					"line": 2,
+					"column": 48,
+					"key": "remote_addr",
+					"normalized": "203.0.113.45",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "10.20.30.40",
+					"line": 2,
+					"column": 70,
+					"key": "upstream",
+					"normalized": "10.20.30.40",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "2001:0db8::0001",
+					"line": 3,
+					"column": 43,
+					"key": "req.ip",
+					"normalized": "2001:db8::1",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "100.64.0.9",
+					"line": 4,
+					"column": 24,
+					"key": "remote_addr",
+					"normalized": "100.64.0.9",
+					"class": "cgnat",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.5",
+					"line": 5,
+					"column": 37,
+					"key": "SRC",
+					"normalized": "10.0.0.5",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "8.8.8.8",
+					"line": 5,
+					"column": 50,
+					"key": "DST",
+					"normalized": "8.8.8.8",
+					"class": "global",
+					"refused": null
+				},
+				{
+					"text": "aa:bb:cc:dd:ee:ff",
+					"line": 5,
+					"column": 62,
+					"key": "MAC",
+					"normalized": "aa:bb:cc:dd:ee:ff",
+					"class": "global",
+					"refused": null
+				}
+			]
+		},
+		{
+			"name": "ambiguous.txt as text — every line a refusal",
+			"file": "ambiguous.txt",
+			"format": "unknown",
+			"expected": [
+				{
+					"text": "010.1.1.1",
+					"line": 1,
+					"column": 1,
+					"key": null,
+					"normalized": null,
+					"class": null,
+					"refused": "octal_hazard"
+				},
+				{
+					"text": "0177.0.0.1",
+					"line": 2,
+					"column": 1,
+					"key": null,
+					"normalized": null,
+					"class": null,
+					"refused": "octal_hazard"
+				},
+				{
+					"text": "10.0.1",
+					"line": 3,
+					"column": 1,
+					"key": null,
+					"normalized": null,
+					"class": null,
+					"refused": "ambiguous_version"
+				},
+				{
+					"text": "256.1.1.1",
+					"line": 4,
+					"column": 1,
+					"key": null,
+					"normalized": null,
+					"class": null,
+					"refused": "malformed_address"
+				},
+				{
+					"text": "2001:db8:::1",
+					"line": 5,
+					"column": 1,
+					"key": null,
+					"normalized": null,
+					"class": null,
+					"refused": "malformed_address"
+				},
+				{
+					"text": "10.0.0.0/33",
+					"line": 6,
+					"column": 1,
+					"key": null,
+					"normalized": null,
+					"class": null,
+					"refused": "prefix_out_of_range"
+				},
+				{
+					"text": "2001:db8::/129",
+					"line": 7,
+					"column": 1,
+					"key": null,
+					"normalized": null,
+					"class": null,
+					"refused": "prefix_out_of_range"
+				},
+				{
+					"text": "deadbeefcafe",
+					"line": 8,
+					"column": 1,
+					"key": null,
+					"normalized": null,
+					"class": null,
+					"refused": "mac_ambiguous"
+				}
+			]
+		},
+		{
+			"name": "classes.txt as text — one address per class",
+			"file": "classes.txt",
+			"format": "unknown",
+			"expected": [
+				{
+					"text": "127.0.0.1",
+					"line": 1,
+					"column": 1,
+					"key": null,
+					"normalized": "127.0.0.1",
+					"class": "loopback",
+					"refused": null
+				},
+				{
+					"text": "10.1.2.3",
+					"line": 2,
+					"column": 1,
+					"key": null,
+					"normalized": "10.1.2.3",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "169.254.169.254",
+					"line": 3,
+					"column": 1,
+					"key": null,
+					"normalized": "169.254.169.254",
+					"class": "link-local",
+					"refused": null
+				},
+				{
+					"text": "100.64.0.1",
+					"line": 4,
+					"column": 1,
+					"key": null,
+					"normalized": "100.64.0.1",
+					"class": "cgnat",
+					"refused": null
+				},
+				{
+					"text": "224.0.0.1",
+					"line": 5,
+					"column": 1,
+					"key": null,
+					"normalized": "224.0.0.1",
+					"class": "multicast",
+					"refused": null
+				},
+				{
+					"text": "255.255.255.255",
+					"line": 6,
+					"column": 1,
+					"key": null,
+					"normalized": "255.255.255.255",
+					"class": "broadcast",
+					"refused": null
+				},
+				{
+					"text": "192.0.2.5",
+					"line": 7,
+					"column": 1,
+					"key": null,
+					"normalized": "192.0.2.5",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "0.0.0.0",
+					"line": 8,
+					"column": 1,
+					"key": null,
+					"normalized": "0.0.0.0",
+					"class": "reserved",
+					"refused": null
+				},
+				{
+					"text": "8.8.8.8",
+					"line": 9,
+					"column": 1,
+					"key": null,
+					"normalized": "8.8.8.8",
+					"class": "global",
+					"refused": null
+				},
+				{
+					"text": "::1",
+					"line": 10,
+					"column": 1,
+					"key": null,
+					"normalized": "::1",
+					"class": "loopback",
+					"refused": null
+				},
+				{
+					"text": "fe80::1",
+					"line": 11,
+					"column": 1,
+					"key": null,
+					"normalized": "fe80::1",
+					"class": "link-local",
+					"refused": null
+				},
+				{
+					"text": "fd00::1",
+					"line": 12,
+					"column": 1,
+					"key": null,
+					"normalized": "fd00::1",
+					"class": "unique-local",
+					"refused": null
+				},
+				{
+					"text": "ff02::1",
+					"line": 13,
+					"column": 1,
+					"key": null,
+					"normalized": "ff02::1",
+					"class": "multicast",
+					"refused": null
+				},
+				{
+					"text": "2001:db8::1",
+					"line": 14,
+					"column": 1,
+					"key": null,
+					"normalized": "2001:db8::1",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "2606:4700:4700::1111",
+					"line": 15,
+					"column": 1,
+					"key": null,
+					"normalized": "2606:4700:4700::1111",
+					"class": "global",
+					"refused": null
+				},
+				{
+					"text": "ff:ff:ff:ff:ff:ff",
+					"line": 16,
+					"column": 1,
+					"key": null,
+					"normalized": "ff:ff:ff:ff:ff:ff",
+					"class": "broadcast",
+					"refused": null
+				},
+				{
+					"text": "01:00:5e:00:00:01",
+					"line": 17,
+					"column": 1,
+					"key": null,
+					"normalized": "01:00:5e:00:00:01",
+					"class": "multicast",
+					"refused": null
+				},
+				{
+					"text": "aa:bb:cc:dd:ee:ff",
+					"line": 18,
+					"column": 1,
+					"key": null,
+					"normalized": "aa:bb:cc:dd:ee:ff",
+					"class": "global",
+					"refused": null
+				}
+			]
+		},
+		{
+			"name": "normalization.txt as text — RFC 5952 forms",
+			"file": "normalization.txt",
+			"format": "unknown",
+			"expected": [
+				{
+					"text": "2001:0db8:0000:0000:0000:0000:0000:0001",
+					"line": 1,
+					"column": 1,
+					"key": null,
+					"normalized": "2001:db8::1",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "2001:db8:0:0:1:0:0:1",
+					"line": 2,
+					"column": 1,
+					"key": null,
+					"normalized": "2001:db8::1:0:0:1",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "1:0:0:2:0:0:0:3",
+					"line": 3,
+					"column": 1,
+					"key": null,
+					"normalized": "1:0:0:2::3",
+					"class": "global",
+					"refused": null
+				},
+				{
+					"text": "0:0:0:0:0:ffff:192.0.2.128",
+					"line": 4,
+					"column": 1,
+					"key": null,
+					"normalized": "::ffff:192.0.2.128",
+					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "FF01:0:0:0:0:0:0:101",
+					"line": 5,
+					"column": 1,
+					"key": null,
+					"normalized": "ff01::101",
+					"class": "multicast",
+					"refused": null
+				},
+				{
+					"text": "fe80:0000:0000:0000:0204:61ff:fe9d:f156",
+					"line": 6,
+					"column": 1,
+					"key": null,
+					"normalized": "fe80::204:61ff:fe9d:f156",
+					"class": "link-local",
+					"refused": null
+				},
+				{
+					"text": "::",
+					"line": 7,
+					"column": 1,
+					"key": null,
+					"normalized": "::",
+					"class": "reserved",
+					"refused": null
+				},
+				{
+					"text": "::1",
+					"line": 8,
+					"column": 1,
+					"key": null,
+					"normalized": "::1",
+					"class": "loopback",
+					"refused": null
+				}
+			]
+		}
+	]
+}

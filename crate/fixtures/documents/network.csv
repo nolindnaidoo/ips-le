@@ -1,0 +1,4 @@
+host,address,gateway
+api,10.20.30.40,10.20.30.1
+cache,127.0.0.1,
+peer,2001:0db8::0001,fe80::1
