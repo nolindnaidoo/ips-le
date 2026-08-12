@@ -1,0 +1,36 @@
+# Contributor and agent instructions
+
+**Read [AGENTS.md](AGENTS.md) before writing any code**, and through it
+[`crate/AGENTS.md`](crate/AGENTS.md) — the engineering standard this repository
+is held to: control flow, error handling, layout, the decisions already made,
+and why each one exists. [CLAUDE.md](CLAUDE.md) is the short version: gates and
+traps.
+
+This file exists only to route you there. It is deliberately thin: the standard
+lives in one place so it cannot drift between tools.
+
+## Non-negotiables
+
+- Guard clauses first. **No statement-position `else`** — two branches are an
+  early return, many are a `match` that returns from every arm.
+- Nesting stops at two levels inside a function.
+- **Refuse rather than guess.** Two defensible readings means a named refusal,
+  never a picked one. `010.1.1.1` is never resolved, on either stream.
+- **No network, ever** — no DNS, no connect, no WHOIS, no telemetry, not behind
+  a flag.
+- No inline `#[allow(...)]`; `unsafe` is forbidden crate-wide.
+- **Never report success you did not achieve** — run the check, do not infer it.
+- Errors are descriptive and never swallowed.
+- Comments explain **why**, never what.
+- Every bug fix ships with a regression test that fails before the fix.
+- Commits are conventional (`fix:`, `feat:`, `docs:`…), imperative, and
+  enforced by a hook and by CI.
+
+## Before you commit
+
+```bash
+cd crate && cargo fmt --all --check && cargo clippy --all-targets -- -D warnings && cargo test --locked
+```
+
+Coverage thresholds are a floor and are never lowered to make a build pass.
+Every claim in a README or a help text must be provable against the code.

@@ -67,7 +67,39 @@ discovered.
   `{ ok, data, diagnostics, meta }`, where `ok` means the scan ran.
 
 - **Exit codes following grep**: 0 found, 1 none found, 2 malformed
-  question.
+  question. **A path the walk cannot open never moves it**: a locked
+  directory is carried as a `skipped` report line — named on stderr,
+  present in the JSON, failing `--strict` — so one unreadable directory
+  cannot delete the audit of everything readable beside it. Exit 2 stays
+  what it is for: a question that was malformed.
+
+- **Report paths spelled with `/` on every platform**, so a report
+  produced on Windows and one produced on Linux describe the same tree
+  and a consumer never has to know which machine wrote it.
+
+### Verification
+
+Beyond the embedded corpus, four hardening suites and a coverage matrix,
+each gated so a bare `cargo test` stays fast and each with its own CI
+job:
+
+- `tests/hazards.rs` — a byte-order mark, bytes that are not UTF-8, a
+  UTF-16 log, a FIFO, a symlink loop, permission-denied paths, a path
+  over 260 characters, an empty file, a several-megabyte minified JSON
+  document, a log with no trailing newline. Built at runtime; a case the
+  platform cannot express is skipped by name.
+- `tests/platform.rs` — one path separator everywhere, case folding,
+  reserved Windows names, CRLF, stdin, `TZ` independence.
+- `tests/fuzz.rs` — generated input against the scanner's three
+  splitting rules, seeded from `IPS_LE_FUZZ_SECONDS` /
+  `IPS_LE_FUZZ_SEED`. Every document carries an octal hazard whose two
+  readings may never appear on either stream.
+- `tests/budget.rs` — a wall-clock ceiling and three linearity checks,
+  including 20,000 addresses on one non-ASCII line: the shape that made
+  the position index quadratic before it kept checkpoints (62 s → 0.30 s).
+- `tests/coverage_matrix.rs` — every kind, class, refusal reason and
+  format reader reachable from a real fixture, and nothing produced that
+  the vocabulary does not name.
 
 ### Deliberately not included
 
