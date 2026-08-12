@@ -50,12 +50,11 @@ pub(crate) const SUPPORTED_FORMATS: [&str; 7] =
 /// no key paths.
 pub(crate) const FALLBACK_FORMAT: &str = "unknown";
 
+/// A name as the alias table spells it. The leading `.` goes before the
+/// lowercasing rather than after, so this is one allocation instead of
+/// two — case does not move a full stop.
 fn normalise(value: &str) -> String {
-    value
-        .trim()
-        .to_lowercase()
-        .trim_start_matches('.')
-        .to_string()
+    value.trim().trim_start_matches('.').to_lowercase()
 }
 
 /// The reader key for an already-canonical format name, or the
@@ -90,11 +89,14 @@ pub(crate) fn resolve_format(format: Option<&str>, filename: Option<&str>) -> &'
 
     // `access.log.1` and `syslog.log.2026-08-12` are the same file as
     // `access.log`, and a rotated log is most of what a log directory
-    // holds. Every suffix gets a try, right to left.
-    let mut parts: Vec<&str> = filename.split('.').skip(1).collect();
-    parts.reverse();
-    parts
+    // holds. Every suffix gets a try, right to left. The stem is skipped
+    // rather than reversed into: `log.txt` is text, not a log.
+    filename
+        .split('.')
+        .skip(1)
+        .collect::<Vec<&str>>()
         .into_iter()
+        .rev()
         .map(|part| canonical(&normalise(part)))
         .find(|key| *key != FALLBACK_FORMAT)
         .unwrap_or(FALLBACK_FORMAT)
