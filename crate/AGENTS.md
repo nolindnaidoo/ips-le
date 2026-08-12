@@ -66,6 +66,10 @@ locate.rs    joins the three
   - `policy::mac_octets` — the MAC shape *and* its value in one answer,
     so `scanner.rs`'s decision to hold a run together and `policy.rs`'s
     decision to read it cannot disagree.
+  - `extract::strip_comment` — where a value ends. Four line readers
+    need it, two had grown their own and the other two had none, and
+    the result was that a trailing comment handed its addresses the key
+    beside them while a whole-line comment did not.
 - Keep modules flat. No layers, registries, managers, or services. No
   trait with a single implementation.
 
@@ -262,8 +266,10 @@ Read the number, not just the threshold. **Every line of production code
 in `extract/` is covered.** What the report still shows uncovered is the
 `panic!` arm of a test helper and the failure-message argument of an
 assertion — lines that run only when a test fails, which is the point of
-them. `policy.rs` at 98.44% and `corpus.rs` at 97.41% are entirely that;
-every other module reads 100%.
+them. `policy.rs` and `corpus.rs` read just under 100% for that reason alone;
+every other module reads 100%. Exact percentages are deliberately not
+quoted here — they move with every test added, and a number in a doc
+that drifts is the thing this file exists to prevent.
 
 So an uncovered line in production code is a question, not a rounding
 error: it is either a live branch nobody tested or a branch nothing can
@@ -367,12 +373,14 @@ is the one that costs someone a day. If docs describe the thing you
 changed, update them in the same commit — README, SPEC.md, CHANGELOG.md
 and this file are part of the code.
 
-The `.githooks/commit-msg` hook rejects a bad subject before the commit
-exists; enable it with `git config core.hooksPath .githooks`. **It is
-the only gate on this** — unlike the sibling repos there is no
-`Commit messages` CI job here, so `--no-verify` skips the check rather
-than deferring it. Fixing that means adding the job, not relaxing the
-rule.
+Two gates, one rule. The `.githooks/commit-msg` hook rejects a bad
+subject before the commit exists — enable it with `git config
+core.hooksPath .githooks` — and the `commits` CI job runs the same
+check over the pushed range. The hook is skippable with `--no-verify`
+and CI is not, so skipping it delays the failure rather than avoiding
+it. **They carry the same pattern and must keep carrying it**: a hook
+stricter than CI rejects work CI would take, and a hook looser than CI
+lets someone push a commit that fails the build.
 
 **CHANGELOG.md is not generated from these.** It is written by hand,
 because an entry explaining why a bug mattered is worth more than a list
