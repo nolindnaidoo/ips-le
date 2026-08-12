@@ -137,10 +137,15 @@ mod tests {
         assert!(error.contains("key paths"), "{error}");
     }
 
+    /// An empty document parses and holds no value at all, which is the
+    /// one shape that is neither a tree to walk nor a failure to report.
     #[test]
     fn an_empty_document_is_not_an_error() {
         assert!(parse_error("").is_none());
         assert!(parse_error("   \n ").is_none());
+        assert!(keys("").is_empty());
+        assert!(keys("  \n\t ").is_empty());
+        assert!(keys("// only a comment\n").is_empty());
     }
 
     /// Spans must not overlap, or the binary search in `locate.rs`

@@ -80,6 +80,16 @@ mod tests {
         assert!(keys("just some text 10.0.0.1\n").is_empty());
     }
 
+    /// An `=` with nothing before it names nothing. The address after it
+    /// is still scanned; it just carries no key, which is the honest
+    /// answer rather than an empty one.
+    #[test]
+    fn an_equals_with_no_key_before_it_names_nothing() {
+        assert!(keys("=10.0.0.1\n").is_empty());
+        assert!(keys("   =10.0.0.1\n").is_empty());
+        assert!(keys("export =10.0.0.1\n").is_empty());
+    }
+
     #[test]
     fn every_line_keeps_its_own_key() {
         let text = "A=1.1.1.1\nB=2.2.2.2\n";

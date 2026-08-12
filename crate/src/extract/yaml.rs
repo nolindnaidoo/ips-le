@@ -170,4 +170,13 @@ mod tests {
     fn a_key_with_no_value_names_no_span() {
         assert!(keys("server:\n").is_empty());
     }
+
+    /// A sequence entry with no key above it belongs to nothing, and
+    /// must name nothing rather than an empty path. The address on it is
+    /// still scanned.
+    #[test]
+    fn a_sequence_entry_with_no_key_above_it_names_nothing() {
+        assert!(keys("- 10.0.0.1\n- 10.0.0.2\n").is_empty());
+        assert!(keys("just some prose 10.0.0.1\n").is_empty());
+    }
 }
