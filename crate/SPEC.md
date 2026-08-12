@@ -179,8 +179,11 @@ drift.
 
 **Every field is always present, nulls included**, so a consumer writes
 one reader and never has to decide whether an absent key and a null key
-mean different things. `kind` is `null` where the refusal is about which
-kind it is.
+mean different things.
+
+`kind` is one of four values — `ipv4`, `ipv6`, `cidr`, `mac` — and is
+`null` where the refusal is about *which* kind it is. `--kind` takes the
+same four names.
 
 `summary.addresses` counts what was named; `summary.refused` counts what
 was not. The `addresses` array holds both.
@@ -258,3 +261,33 @@ Written down rather than discovered:
   slash.
 - **`--class` and `--kind` accumulate** and are ORs within a dimension,
   ANDs across them. There is no negation.
+
+## Notes
+
+### Where a quadratic hides in a UTF-16 column
+
+`extract/position.rs` reports a column in UTF-16 code units, because
+that is the number the editor open beside the report shows. The naive
+way to answer is to count the units between the start of the line and
+the offset, on every lookup. On an ASCII document that never costs
+anything — a byte offset *is* a UTF-16 offset, so the column is
+arithmetic — which is exactly what makes it easy to ship: the fast path
+covers every test anyone thinks to write.
+
+It costs on a document that is **long-lined and not ASCII**. One `café`
+anywhere in the file removes the fast path, and then every address on a
+line re-counts the whole prefix before it: quadratic in the addresses
+per line. Measured here, debug build: 20,000 addresses on one
+`café`-laden line took 62 s, and 5,000 took 3.7 s. With checkpoints
+every kilobyte the same two documents cost 0.30 s and 0.077 s.
+`tests/budget.rs` pins both the ceiling and the 4× ratio so it cannot
+come back.
+
+**The same shape is still present in `numbers-le`.**
+`numbers-le/crate/src/extract/position.rs` keeps an `all_ascii` flag and
+falls back to `prefix.encode_utf16().count()` on every lookup when the
+document is not ASCII, with no checkpoints. Its long-line scenario
+(`a_single_long_line_completes`) builds `const v{n}={n}.25;` — pure
+ASCII — so it takes the fast path and the cost never appears. Recorded
+here rather than fixed there: this crate does not own that one, and a
+finding nobody wrote down is a finding that has to be made twice.

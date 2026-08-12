@@ -196,7 +196,38 @@ Flat over nested, guards over branches:
   scenario is never reported as a pass.
 - **Every bug fix ships with a regression test** that fails before the
   fix.
-- Tests are deterministic: no clocks, no randomness, no network.
+- Tests are deterministic: no clocks, no randomness, no network. The
+  fuzz suite's randomness is seeded and printed, which is the same
+  thing.
+
+### The hardening suites
+
+Four suites and a coverage matrix, each aimed at a failure a green unit
+run cannot see, each with its own CI job. They are gated so a bare
+`cargo test` stays fast — not because they are optional.
+
+| suite | catches | run it |
+|---|---|---|
+| `tests/hazards.rs` | inputs a real machine holds and a fixture directory cannot: a byte-order mark, bytes that are not UTF-8, a UTF-16 log, a FIFO, a symlink loop, a locked file or directory, a path over 260 characters, a several-megabyte minified document | `cargo test --test hazards` |
+| `tests/platform.rs` | what differs by operating system: the path separator in the report, case folding, reserved Windows names, CRLF, stdin, `TZ` | `cargo test --test platform` |
+| `tests/fuzz.rs` | a panic, a hang or a slice off a character boundary in the scanner's three splitting rules — and an octal hazard resolved under generated input | `IPS_LE_FUZZ_SECONDS=60 cargo test --test fuzz -- --nocapture` |
+| `tests/budget.rs` | an order of magnitude, and the quadratic class: four times the files, four times the addresses in one file, four times the addresses on one **non-ASCII** line | `IPS_LE_BUDGET=1 cargo test --test budget -- --test-threads=1 --nocapture` |
+| `tests/coverage_matrix.rs` | a kind, class, refusal reason or format the tool claims and no fixture reaches — and anything produced that the vocabulary does not name | `cargo test --test coverage_matrix -- --nocapture` |
+
+Three rules they are all held to:
+
+- **A case the platform cannot express is skipped by name.** `SKIPPED
+  <case>: <why>` on stderr, never a silent pass. A green run has to say
+  what it did not check.
+- **A performance case on a long line must be non-ASCII.** The position
+  index answers a column arithmetically when the whole document is
+  ASCII, so an ASCII long line measures the fast path and nothing else.
+  That is exactly how the quadratic in `position.rs` survived a suite
+  that had a long-line case — see SPEC.md, "Notes".
+- **A marker line, and CI greps for it.** `cargo test <filter>` exits 0
+  when the filter matches nothing, so a renamed test passes its job
+  silently otherwise. `coverage_matrix` prints counts; the workflow
+  greps them.
 
 ## Verification — the definition of done
 
