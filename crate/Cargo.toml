@@ -32,7 +32,15 @@ categories = [
 exclude = ["AGENTS.md", "rust-toolchain.toml"]
 
 [dependencies]
+# The report *is* the product on both surfaces — stdout is JSON Lines and
+# the MCP envelope is JSON — so the shape has to be derived from the types
+# that carry it rather than written twice by hand. `derive` is what keeps
+# "every field is always present, nulls included" a property of `Found`
+# instead of a rule someone remembers while editing a formatter.
 serde = { version = "1", features = ["derive"] }
+# The writer for the above, and the reader for the embedded corpus and the
+# MCP request frames. Hand-rolling either would put a JSON escaper in a
+# tool whose whole promise is that it does not guess.
 serde_json = "1"
 # JSON/JSONC with node ranges. The only format here that needs a real
 # parser: a minified document is one line, so a line-oriented key reader
