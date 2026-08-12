@@ -28,7 +28,8 @@ crate/src/
 ├── extract/     pure: the scanner, the policy layer, the seven key
 │                readers, positions. No filesystem, no network.
 ├── walk.rs      ignore-aware tree walking
-├── scan.rs      one file end to end — the only path either surface calls
+├── scan.rs      one file end to end, and `tree()` over a set of paths —
+│                the only path either surface calls
 ├── cli.rs       the terminal surface
 └── mcp/         the agent surface
 ```
@@ -53,7 +54,18 @@ locate.rs    joins the three
 - **Both surfaces are one implementation.** `cli.rs` and `mcp/` both
   call `scan.rs`. A surface that grows its own copy of a rule is a bug,
   and a contract test asserts the two return identical reports for the
-  same tree.
+  same tree. Three places carry rules both surfaces need, and none of
+  them may be reimplemented at a call site:
+  - `scan::tree` — walk, read, partition, and carry the unreadable
+    paths as report lines. A surface that assembles this itself grows
+    its own idea of what a binary file is.
+  - `Found::survives` — the kind/class filter, including the rule that
+    **a refusal survives every filter it cannot be judged by**. It lives
+    on the finding rather than on either surface's options because both
+    filter, and a second copy is a second chance to drop a refusal.
+  - `policy::mac_octets` — the MAC shape *and* its value in one answer,
+    so `scanner.rs`'s decision to hold a run together and `policy.rs`'s
+    decision to read it cannot disagree.
 - Keep modules flat. No layers, registries, managers, or services. No
   trait with a single implementation.
 
@@ -150,9 +162,13 @@ Flat over nested, guards over branches:
 
 ## Hard rules
 
-- **No inline `#[allow(...)]`.** Either fix the lint or add a visible,
-  commented relaxation to `[lints.clippy]` in `Cargo.toml`. There are
-  none today, and that is the state to keep.
+- **No inline `#[allow(...)]` and no inline `#[expect(...)]`.** Either
+  fix the lint or add a visible, commented relaxation to
+  `[lints.clippy]` or `[lints.rust]` in `Cargo.toml`. There are none
+  today, and that is the state to keep. The CI `policy` job greps for
+  both spellings, the `cfg_attr` wrapping and the inner `#![...]` form,
+  across `src/` **and** `tests/` — it used to grep for `allow` alone,
+  and an `#[expect(dead_code)]` sat under a green build because of it.
 - **Clippy pedantic, deny warnings.** `cargo clippy --all-targets --
   -D warnings` must pass.
 - **`unsafe` is forbidden crate-wide** (`[lints.rust]`).
@@ -171,6 +187,30 @@ Flat over nested, guards over branches:
 - **Refusals speak the caller's vocabulary.** An MCP caller has no
   command line; no message on that surface mentions a flag, and a test
   greps for `--`.
+- **No reachable panic.** No `unwrap`, no `expect`, no panicking index,
+  no arithmetic that can overflow on a path an input can reach. Every
+  fallible path returns `Option` or `Result`.
+
+  The exceptions are named, and they are all the same one: serialising
+  a report or an envelope (`cli.rs`, `mcp/`). Those types are structs
+  of strings, integers, enums, `Option` and `Vec` — no map with a
+  non-string key, no float — so `serde_json` cannot fail on them, and
+  the `expect` states that invariant rather than hiding a failure. Every
+  test run serialises the whole corpus through them, so a field that
+  broke it would fail a build rather than a user. Do not add a new one
+  without the same argument.
+
+- **A fallback for an impossible case is a wrong answer waiting.**
+  `unwrap_or` on a branch an earlier check made unreachable is worse
+  than no check: it survives the day the earlier check moves, and it
+  answers with a plausible number. Prefer restructuring so the check
+  and the conversion are the same step — `cidr_v4` narrows the prefix
+  to a `u8` *as* the range test, and `mac_octets` returns the octets it
+  proved rather than a `bool` a second function has to re-derive.
+
+  `checked_shl(...).unwrap_or(0)` is not this. A prefix of 0 asks to
+  shift by the full width, and 0 is the mask it is asking for — the
+  fallback is the answer, and it carries a comment saying so.
 
 ## Testing
 
@@ -199,6 +239,42 @@ Flat over nested, guards over branches:
 - Tests are deterministic: no clocks, no randomness, no network. The
   fuzz suite's randomness is seeded and printed, which is the same
   thing.
+
+### The coverage floor
+
+**90% of lines per module in `extract/`**, enforced by the `coverage`
+job — per module rather than on the crate total, because a total lets
+one module slide while the others carry it. It is a floor to ratchet
+upward, never lowered so a build passes.
+
+```bash
+rustup component add llvm-tools-preview
+cargo install cargo-llvm-cov
+cargo llvm-cov --summary-only
+```
+
+`--html` instead of `--summary-only` writes a browsable report to
+`target/llvm-cov/html`; CI uploads that same report on every run,
+including a failing one, because a failing run is exactly when someone
+wants to see which lines are uncovered.
+
+Read the number, not just the threshold. **Every line of production code
+in `extract/` is covered.** What the report still shows uncovered is the
+`panic!` arm of a test helper and the failure-message argument of an
+assertion — lines that run only when a test fails, which is the point of
+them. `policy.rs` at 98.44% and `corpus.rs` at 97.41% are entirely that;
+every other module reads 100%.
+
+So an uncovered line in production code is a question, not a rounding
+error: it is either a live branch nobody tested or a branch nothing can
+reach. The first wants a test. The second wants deleting — `read_mac`
+carried a `malformed_address` refusal that the shape check made
+impossible, and it went — or, if it earns its place, a test calling the
+function directly and a comment saying why. `read_cidr`'s non-numeric
+prefix is the one that earned it: no document reaches it, because the
+scanner attaches only digits to a `/`, but `read` takes a token from
+anywhere and the alternative to a named refusal is a block whose prefix
+nobody parsed.
 
 ### The hardening suites
 
@@ -231,12 +307,73 @@ Three rules they are all held to:
 
 ## Verification — the definition of done
 
+All three, exactly as CI runs them, before every push:
+
 ```bash
 cargo fmt --all --check
 cargo clippy --all-targets -- -D warnings
 cargo test --locked
 ```
 
+CI additionally builds on macOS, Windows and Linux, checks the Rust 1.88
+minimum version, runs `cargo audit`, runs the no-inline-suppression
+policy job, enforces the per-module coverage floor, and runs the five
+gated suites above.
+
 A change is not done because it compiles; it is done when it is tested,
 linted, documented where behaviour changed (README / SPEC / CHANGELOG /
 this file), and honest — claims in docs must match the code.
+
+**A refactor claiming no behaviour change has to prove it**, because the
+whole product is a byte-exact report a script branches on. Build the
+binary before and after and diff **both streams and the exit code** over
+the fixture tree, a forced run of every format, and both MCP tools. A
+green test suite is not the proof: the suite pins the cases somebody
+thought of, and a refactor is exactly the change that moves a case
+nobody did.
+
+## Git identity
+
+Every commit uses the GitHub noreply address:
+
+```
+13629544+nolindnaidoo@users.noreply.github.com
+```
+
+A real address in commit metadata is public forever — GitHub's API
+serves it for any public repo, and scrapers harvest it. Never set a real
+address in `user.email`, globally or repo-locally, and never commit with
+one. A repo-local `user.email` silently overrides the global one, so
+check `git config user.email` in a fresh clone before the first commit.
+
+## Commits
+
+Conventional prefix, imperative subject **under 72 characters**, no
+trailing period; the body carries the *why* and the user-visible
+consequence, not a list of files touched.
+
+```
+type(optional-scope): imperative subject
+```
+
+`type` is one of **feat · fix · docs · style · refactor · perf · test ·
+build · ci · chore · revert**. A scope is optional and free-form — use
+one when it tells the reader where to look. Append `!` for a breaking
+change.
+
+One concern per commit. Refactors and behaviour changes travel
+separately, and a commit that says "refactor" and moves a byte of output
+is the one that costs someone a day. If docs describe the thing you
+changed, update them in the same commit — README, SPEC.md, CHANGELOG.md
+and this file are part of the code.
+
+The `.githooks/commit-msg` hook rejects a bad subject before the commit
+exists; enable it with `git config core.hooksPath .githooks`. **It is
+the only gate on this** — unlike the sibling repos there is no
+`Commit messages` CI job here, so `--no-verify` skips the check rather
+than deferring it. Fixing that means adding the job, not relaxing the
+rule.
+
+**CHANGELOG.md is not generated from these.** It is written by hand,
+because an entry explaining why a bug mattered is worth more than a list
+of subjects.
