@@ -33,6 +33,16 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   preceded by a tab is now a comment as one preceded by a space always
   was.
 
+- **A CIDR prefix of digits is out of range however long it is.**
+  `10.0.0.0/999` answered `prefix_out_of_range` and `10.0.0.0/65536`
+  answered `malformed_address` — the same mistake named two ways,
+  decided by whether the digits happened to fit a `u16` before anything
+  judged them. A run of digits is a prefix; whether it fits the family
+  is the range question. Only a prefix that is not digits at all
+  (`/abc`, `/`) is malformed now. Not reachable from a document — the
+  scanner attaches at most three digits to a `/` — but `extract_ips`
+  takes a token from anywhere.
+
 ### Changed
 
 - `crate/SPEC.md` states the comment rule per dialect, and the corpus

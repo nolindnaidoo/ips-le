@@ -400,16 +400,25 @@ fn read_cidr(base: &str, prefix: &str) -> Option<Reading> {
         return None;
     }
 
+    // A run of digits **is** a prefix; whether it fits the family is the
+    // range question below. Only text that is not a number at all is
+    // malformed — deciding that by whether the digits happen to fit a
+    // `u16` would name the same mistake two different ways.
+    //
     // `scanner.rs` only ever attaches one to three digits after a `/`,
-    // so no document reaches this today. It stays because `read` is the
-    // entry point for a token from anywhere, and the alternative to a
-    // named refusal here is a block with a prefix nobody parsed.
-    let Ok(width) = prefix.parse::<u16>() else {
+    // so no document reaches the malformed branch today. It stays
+    // because `read` is the entry point for a token from anywhere, and
+    // the alternative is a block whose prefix nobody parsed.
+    if prefix.is_empty() || !prefix.bytes().all(|byte| byte.is_ascii_digit()) {
         return Some(refuse_cidr(
             Reason::MalformedAddress,
             format!("{base}/{prefix} does not carry a prefix length."),
         ));
-    };
+    }
+    // Saturating rather than failing: digits too long for a `u16` are
+    // certainly outside both families, and the refusal prints the text
+    // the document wrote rather than this number.
+    let width = prefix.parse::<u16>().unwrap_or(u16::MAX);
 
     if base.contains(':') {
         return Some(cidr_v6(base, width));
@@ -999,10 +1008,35 @@ mod tests {
     /// rather than a block whose prefix nobody parsed.
     #[test]
     fn a_prefix_that_is_not_a_number_is_malformed() {
-        for token in ["10.0.0.0/abc", "2001:db8::/x", "10.0.0.0/65536"] {
+        for token in ["10.0.0.0/abc", "2001:db8::/x", "10.0.0.0/"] {
             assert_eq!(
                 refusal(token, Context::default()),
                 Reason::MalformedAddress,
+                "{token}"
+            );
+        }
+    }
+
+    /// A run of digits **is** a prefix; whether it fits the family is
+    /// the range question. Storing it decided the reason before that:
+    /// `/999` fitted a `u16` and answered `prefix_out_of_range` while
+    /// `/65536` did not and answered `malformed_address` — the same
+    /// mistake, named two ways, for a reason with nothing to do with
+    /// the document.
+    #[test]
+    fn a_prefix_of_digits_is_out_of_range_however_long_it_is() {
+        for token in [
+            "10.0.0.0/33",
+            "10.0.0.0/999",
+            "10.0.0.0/65536",
+            "10.0.0.0/99999999999999999999",
+            "2001:db8::/129",
+            "2001:db8::/65536",
+            "2001:db8::/99999999999999999999",
+        ] {
+            assert_eq!(
+                refusal(token, Context::default()),
+                Reason::PrefixOutOfRange,
                 "{token}"
             );
         }
