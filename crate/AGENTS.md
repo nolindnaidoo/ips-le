@@ -312,6 +312,12 @@ Three rules they are all held to:
   greps them.
 
 ## Verification — the definition of done
+- **Commits are conventional and CI enforces it.** The `commits` job in
+  `.github/workflows/ci-crate.yml` validates every pushed commit's subject
+  against the same pattern and the same 72-character cap as
+  `.githooks/commit-msg`. The hook is opt-in per clone (`git config
+  core.hooksPath .githooks`), so `--no-verify` and a fresh checkout defer
+  the check to CI rather than escaping it. Scopes may be comma-separated.
 
 All three, exactly as CI runs them, before every push:
 
