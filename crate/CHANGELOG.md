@@ -59,6 +59,15 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `network.env` each carry a trailing comment holding an address, so a
   reader that started attributing one again fails a test.
 
+- **README.md's sample output is now the tool's own**, checked against a
+  real run by `tests/contracts.rs`. It printed four of eight findings as
+  though that were the whole answer, and had gone stale against the
+  fixture it names — a plausible report nobody re-ran, which is the
+  thing this crate exists to stop. Its `AGENTS.md` link points at the
+  repository rather than relatively, because that file is deliberately
+  excluded from the published package and the relative link was broken
+  for anyone reading from crates.io or an unpacked tarball.
+
 ## [0.1.0] — 2026-08-12
 
 First release. Core functionality, not a hardened 1.0 — the known

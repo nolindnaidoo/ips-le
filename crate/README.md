@@ -46,13 +46,27 @@ cat access.log | ips-le --stdin --format log
 ips-le . | jq -r '.addresses[] | select(.normalized) | .normalized' | sort -u
 ```
 
+stderr, in full, for one of the fixture documents that ships with the
+crate — `ips-le fixtures/documents/network.yaml`:
+
 ```
 fixtures/documents/network.yaml:3:11  0.0.0.0  0.0.0.0  reserved
+fixtures/documents/network.yaml:4:15  10.20.30.40  10.20.30.40  private
+fixtures/documents/network.yaml:6:11  127.0.0.1  127.0.0.1  loopback
 fixtures/documents/network.yaml:7:11  2001:0db8::0001  2001:db8::1  documentation
 fixtures/documents/network.yaml:9:5  10.0.0.0/8  10.0.0.0/8  private
+fixtures/documents/network.yaml:10:5  192.168.0.0/16  192.168.0.0/16  private
 fixtures/documents/network.yaml:11:11  169.254.169.254  169.254.169.254  link-local
-8 addresses in 1 file
+fixtures/documents/network.yaml:12:11  aa:bb:cc:dd:ee:ff  aa:bb:cc:dd:ee:ff  global
+fixtures/documents/network.yaml:14:11  10.0.0.7  10.0.0.7  private
+fixtures/documents/network.yaml:14:26  10.0.0.8  10.0.0.8  private
+10 addresses in 1 file
 ```
+
+The last two are one line — `fallback: 10.0.0.7 # was 10.0.0.8`. Both
+addresses are reported, because an address in a comment is one a
+reviewer came for; only the first carries the key `fallback`, because
+the file does not bind to the other one.
 
 ## What it answers
 
@@ -172,6 +186,10 @@ cargo test          # the RFC 5952 cases, one address per class,
 - [SPEC.md](SPEC.md) — the refusal table, the classification table, the
   output schema, the non-goals.
 - [CHANGELOG.md](CHANGELOG.md) — what changed and when.
-- [AGENTS.md](AGENTS.md) — how the code is written and reviewed.
+- [AGENTS.md](https://github.com/nolindnaidoo/ips-le/blob/main/crate/AGENTS.md)
+  — how the code is written and reviewed. Linked to the repository
+  rather than relatively: it is deliberately excluded from the published
+  package, so a relative link would be broken for anyone reading this on
+  crates.io or from an unpacked tarball.
 
 MIT licensed.

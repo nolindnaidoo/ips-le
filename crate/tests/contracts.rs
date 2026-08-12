@@ -15,6 +15,8 @@ use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 const BINARY: &str = env!("CARGO_BIN_EXE_ips-le");
+const CRATE: &str = env!("CARGO_MANIFEST_DIR");
+const README: &str = include_str!("../README.md");
 static COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 struct Tree {
@@ -341,6 +343,37 @@ fn stdin_reads_one_document() {
     assert_eq!(reports.len(), 1);
     assert_eq!(reports[0]["file"], "<stdin>");
     assert_eq!(reports[0]["addresses"][0]["key"], "src");
+}
+
+/// **The README's sample output is a claim, so it is checked.** It
+/// showed four of eight findings as though it were the whole answer and
+/// then went stale against the fixture it names — which is the exact
+/// shape of the thing this crate exists to stop, a plausible report
+/// nobody re-ran.
+///
+/// The block is matched against a real run rather than eyeballed. It is
+/// stderr, because that is the human projection the README is showing.
+#[test]
+fn the_readme_sample_is_what_the_binary_actually_prints() {
+    let sample = README
+        .split("```")
+        .find(|block| block.starts_with("\nfixtures/documents/network.yaml:"))
+        .expect("the README carries the sample output block")
+        .trim();
+
+    let output = Command::new(BINARY)
+        .arg("fixtures/documents/network.yaml")
+        .current_dir(CRATE)
+        .output()
+        .expect("the binary runs");
+    assert_eq!(output.status.code(), Some(0));
+    let actual = String::from_utf8_lossy(&output.stderr);
+
+    assert_eq!(
+        sample,
+        actual.trim(),
+        "the README sample no longer matches the tool's own output"
+    );
 }
 
 #[test]
