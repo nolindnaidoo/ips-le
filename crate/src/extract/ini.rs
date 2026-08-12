@@ -7,35 +7,43 @@
 
 use super::{KeySpan, dotted, lines};
 
+/// Both dialects' markers. A comment opens the line or follows
+/// whitespace, and never sits inside a quoted value — `pass = a#b` is a
+/// password, not a truncated one.
+fn strip_comment(line: &str) -> &str {
+    super::strip_comment(line, &[';', '#'], true)
+}
+
 pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
     let mut section = String::new();
     let mut spans = Vec::new();
 
     for (offset, line) in lines(text) {
-        let trimmed = line.trim();
-        if trimmed.is_empty() || trimmed.starts_with([';', '#']) {
+        let content = strip_comment(line);
+        let trimmed = content.trim();
+        if trimmed.is_empty() {
             continue;
         }
         if let Some(name) = trimmed.strip_prefix('[').and_then(|r| r.strip_suffix(']')) {
             section = name.trim().to_string();
             continue;
         }
-        if let Some(span) = span(offset, line, &section) {
+        if let Some(span) = span(offset, content, &section) {
             spans.push(span);
         }
     }
     spans
 }
 
-fn span(offset: usize, line: &str, section: &str) -> Option<KeySpan> {
-    let separator = line.find(['=', ':'])?;
-    let key = line[..separator].trim();
+fn span(offset: usize, content: &str, section: &str) -> Option<KeySpan> {
+    let separator = content.find(['=', ':'])?;
+    let key = content[..separator].trim();
     if key.is_empty() {
         return None;
     }
     Some(KeySpan {
         start: offset + separator + 1,
-        end: offset + line.len(),
+        end: offset + content.len(),
         path: dotted(section, key),
     })
 }

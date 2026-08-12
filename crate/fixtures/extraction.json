@@ -491,6 +491,24 @@
 					"normalized": "aa:bb:cc:dd:ee:ff",
 					"class": "global",
 					"refused": null
+				},
+				{
+					"text": "10.0.0.7",
+					"line": 14,
+					"column": 11,
+					"key": "fallback",
+					"normalized": "10.0.0.7",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.8",
+					"line": 14,
+					"column": 26,
+					"key": null,
+					"normalized": "10.0.0.8",
+					"class": "private",
+					"refused": null
 				}
 			]
 		},
@@ -561,6 +579,24 @@
 					"normalized": "192.168.0.0/16",
 					"class": "private",
 					"refused": null
+				},
+				{
+					"text": "10.0.0.7",
+					"line": 17,
+					"column": 13,
+					"key": "firewall.fallback",
+					"normalized": "10.0.0.7",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.8",
+					"line": 17,
+					"column": 29,
+					"key": null,
+					"normalized": "10.0.0.8",
+					"class": "private",
+					"refused": null
 				}
 			]
 		},
@@ -612,6 +648,24 @@
 					"key": "cache.peer",
 					"normalized": "2001:db8::1",
 					"class": "documentation",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.7",
+					"line": 12,
+					"column": 12,
+					"key": "cache.fallback",
+					"normalized": "10.0.0.7",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.8",
+					"line": 12,
+					"column": 27,
+					"key": null,
+					"normalized": "10.0.0.8",
+					"class": "private",
 					"refused": null
 				}
 			]
@@ -681,6 +735,24 @@
 					"column": 31,
 					"key": "DATABASE_URL",
 					"normalized": "10.20.30.41",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.7",
+					"line": 10,
+					"column": 13,
+					"key": "FALLBACK_IP",
+					"normalized": "10.0.0.7",
+					"class": "private",
+					"refused": null
+				},
+				{
+					"text": "10.0.0.8",
+					"line": 10,
+					"column": 28,
+					"key": null,
+					"normalized": "10.0.0.8",
 					"class": "private",
 					"refused": null
 				}

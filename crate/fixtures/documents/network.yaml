@@ -11,3 +11,4 @@ allow:
 metadata: 169.254.169.254
 hardware: aa:bb:cc:dd:ee:ff
 version: 10.0.1
+fallback: 10.0.0.7 # was 10.0.0.8

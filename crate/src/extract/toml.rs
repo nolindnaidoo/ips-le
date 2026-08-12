@@ -26,7 +26,7 @@ pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
         if let Some((path, depth)) = open.take() {
             spans.push(KeySpan {
                 start: offset,
-                end: offset + line.len(),
+                end: offset + content.len(),
                 path: path.clone(),
             });
             let depth = depth + bracket_depth(content);
@@ -54,7 +54,7 @@ pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
         let path = dotted(&table, key);
         spans.push(KeySpan {
             start: offset + separator + 1,
-            end: offset + line.len(),
+            end: offset + content.len(),
             path: path.clone(),
         });
 
@@ -79,18 +79,11 @@ fn table_header(trimmed: &str) -> Option<String> {
     Some(inner.trim().to_string())
 }
 
-/// A `#` outside a quoted string starts a comment.
+/// TOML ends a value at any `#` outside a quoted string — a bare value
+/// cannot hold one, so unlike the other dialects there is nothing to
+/// protect by requiring whitespace first.
 fn strip_comment(line: &str) -> &str {
-    let mut quote: Option<char> = None;
-    for (index, character) in line.char_indices() {
-        match (quote, character) {
-            (Some(open), _) if character == open => quote = None,
-            (None, '"' | '\'') => quote = Some(character),
-            (None, '#') => return &line[..index],
-            _ => {}
-        }
-    }
-    line
+    super::strip_comment(line, &['#'], false)
 }
 
 fn bracket_depth(text: &str) -> isize {

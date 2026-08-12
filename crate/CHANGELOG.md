@@ -5,6 +5,41 @@ The Rust CLI and MCP server for ips-le.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **An address in a trailing comment no longer inherits the key beside
+  it.** `bind: 10.0.0.5 # was 10.0.0.9` reported *both* addresses under
+  `bind`, so a config was described as binding to an address it does not
+  bind to — a false positive with a name attached, in the one column an
+  allow-list review relies on. All four line readers spanned a value to
+  the end of the raw line: YAML and TOML stripped the comment to parse
+  and then measured the unstripped line, and INI and `.env` did not strip
+  at all. A whole-line comment was always reported correctly; the two
+  forms agree now.
+
+  The strip is shared and **quote-aware**, so `bind = "10.0.0.5 # nope"`
+  stays one address and `PASSWORD=a#b` keeps its `#`. INI reads `;` and
+  `#`; YAML, INI and `.env` need the marker to open the line or follow
+  whitespace, while TOML ends a value at any unquoted `#`.
+
+  Only the `key` field moves. No address is added, removed or
+  repositioned by this change.
+
+  Two smaller corrections ride along, both the same defect: an INI
+  section header with a trailing comment (`[cache] ; note`) now sets the
+  section instead of being read as a key line, and a YAML comment marker
+  preceded by a tab is now a comment as one preceded by a space always
+  was.
+
+### Changed
+
+- `crate/SPEC.md` states the comment rule per dialect, and the corpus
+  pins it: `network.yaml`, `network.toml`, `network.ini` and
+  `network.env` each carry a trailing comment holding an address, so a
+  reader that started attributing one again fails a test.
+
 ## [0.1.0] — 2026-08-12
 
 First release. Core functionality, not a hardened 1.0 — the known

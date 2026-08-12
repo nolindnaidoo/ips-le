@@ -51,7 +51,10 @@ pub(crate) struct Found {
     pub(crate) line: usize,
     pub(crate) column: usize,
     /// The path to the value holding this address, where the format has
-    /// one. Best effort, and `null` rather than a guess.
+    /// one. Best effort, and `null` rather than a guess — including for
+    /// an address in a comment, whether the comment takes the whole line
+    /// or trails a value. A key names where an address lives, so one
+    /// attached to an address the file does not use is worse than none.
     pub(crate) key: Option<String>,
     /// The canonical form. IPv6 follows RFC 5952, which is the reason
     /// this tool is worth running: `2001:0db8::0001` and `2001:db8::1`
@@ -115,6 +118,45 @@ pub(crate) fn lines(text: &str) -> impl Iterator<Item = (usize, &str)> {
         offset += line.len();
         (start, line.trim_end_matches(['\n', '\r']))
     })
+}
+
+/// The part of a line before its comment.
+///
+/// **A value region must end where the value ends.** Every line reader
+/// here spans from after the separator to the end of the line, and a
+/// trailing comment sitting inside that span hands its addresses the key
+/// beside them — so a config binding to one address is reported as
+/// binding to the one somebody wrote in a note next to it. SPEC.md
+/// promises an address in a comment carries no key, and this is what
+/// makes the trailing form agree with the whole-line form.
+///
+/// **Quote-aware**, because `bind = "10.0.0.5 # not a comment"` is a
+/// value. Cutting there would take a real address's key away for a `#`
+/// in a password or a URL fragment.
+///
+/// `after_space` is the difference between the dialects. TOML ends a
+/// value at any unquoted `#`; YAML, INI and `.env` only start a comment
+/// where the marker opens the line or follows whitespace, so
+/// `http://host/page#anchor` and `PASSWORD=a#b` keep theirs.
+pub(crate) fn strip_comment<'a>(line: &'a str, markers: &[char], after_space: bool) -> &'a str {
+    let mut quote: Option<char> = None;
+    // A marker at index 0 opens a comment, so the line starts as though
+    // whitespace preceded it.
+    let mut previous = ' ';
+    for (index, character) in line.char_indices() {
+        match (quote, character) {
+            (Some(open), _) if character == open => quote = None,
+            (None, '"' | '\'') => quote = Some(character),
+            (None, _)
+                if markers.contains(&character) && (!after_space || previous.is_whitespace()) =>
+            {
+                return &line[..index];
+            }
+            _ => {}
+        }
+        previous = character;
+    }
+    line
 }
 
 /// A key under a section or table header, or the bare key when there is

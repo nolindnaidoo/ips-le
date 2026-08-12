@@ -129,6 +129,19 @@ address in a comment is reported with no key. That is the right trade
 here: an address hardcoded in a comment is an address a reviewer came
 for.
 
+**A comment is not part of the value it follows**, whether it takes the
+whole line or trails one. `bind: 10.0.0.5 # was 10.0.0.9` reports two
+addresses: `10.0.0.5` under `bind`, and `10.0.0.9` under nothing. The
+key is a claim about where an address lives, and attaching one to an
+address the file does not use is the false positive an allow-list review
+is least able to afford.
+
+The marker is `#` in YAML, TOML and `.env`, and `;` or `#` in INI. It
+opens a comment where it starts the line or follows whitespace — TOML
+ends a value at any unquoted `#`, because a bare TOML value cannot hold
+one — and **never inside a quoted value**: `bind = "10.0.0.5 # nope"` is
+one address, and `PASSWORD=a#b` keeps its `#`.
+
 ## What the scanner declines to consider
 
 A log file is mostly timestamps, durations, ports, hashes and paths,

@@ -178,6 +178,54 @@ mod tests {
         assert_eq!(one.key, None);
     }
 
+    /// SPEC.md promises that an address in a comment is reported with no
+    /// key, and `Found::key` promises null rather than a guess. A
+    /// **trailing** comment used to hand its address the key beside it,
+    /// so a config binding to 10.0.0.5 was reported as binding to
+    /// 10.0.0.9 as well — a name attached to an address the file does
+    /// not use, which is the false positive an allow-list review is
+    /// least able to afford.
+    #[test]
+    fn an_address_in_a_trailing_comment_has_no_key() {
+        for (format, text) in [
+            ("yaml", "bind: 10.0.0.5 # fallback 10.0.0.9\n"),
+            ("toml", "bind = \"10.0.0.5\" # fallback 10.0.0.9\n"),
+            ("ini", "bind = 10.0.0.5 ; fallback 10.0.0.9\n"),
+            ("ini", "bind = 10.0.0.5 # fallback 10.0.0.9\n"),
+            ("env", "BIND=10.0.0.5 # fallback 10.0.0.9\n"),
+        ] {
+            let all = found(text, format);
+            assert_eq!(all.len(), 2, "{format}: {all:?}");
+            assert!(all[0].key.is_some(), "{format}: the value lost its key");
+            assert_eq!(all[1].key, None, "{format}: the comment kept a key");
+        }
+    }
+
+    /// The other half, and the reason the strip has to know about
+    /// quotes: a marker inside a quoted value is part of the value.
+    /// Cutting there would drop a real address's key — and on a bare
+    /// `#` in a URL or a password, drop the address's key for nothing.
+    #[test]
+    fn a_comment_marker_inside_a_value_is_not_a_comment() {
+        for (format, text) in [
+            ("yaml", "bind: \"10.0.0.5 # 10.0.0.9\"\n"),
+            ("toml", "bind = \"10.0.0.5 # 10.0.0.9\"\n"),
+            ("ini", "bind = \"10.0.0.5 ; 10.0.0.9\"\n"),
+            ("env", "BIND=\"10.0.0.5 # 10.0.0.9\"\n"),
+            // No whitespace before the marker: not a comment in any of
+            // these dialects.
+            ("yaml", "bind: 10.0.0.5#10.0.0.9\n"),
+            ("env", "BIND=10.0.0.5#10.0.0.9\n"),
+        ] {
+            let all = found(text, format);
+            assert_eq!(all.len(), 2, "{format}: {all:?}");
+            assert!(
+                all[1].key.is_some(),
+                "{format}: a value was cut at its own marker"
+            );
+        }
+    }
+
     #[test]
     fn a_key_lookup_lands_inside_the_span_and_nowhere_else() {
         let spans = vec![

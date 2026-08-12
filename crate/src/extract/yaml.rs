@@ -15,6 +15,12 @@
 
 use super::{KeySpan, lines};
 
+/// YAML starts a comment at a `#` that opens the line or follows
+/// whitespace, and never inside a quoted scalar.
+fn strip_comment(line: &str) -> &str {
+    super::strip_comment(line, &['#'], true)
+}
+
 pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
     let mut stack: Vec<(usize, String)> = Vec::new();
     let mut spans = Vec::new();
@@ -47,7 +53,7 @@ pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
             if !stack.is_empty() {
                 spans.push(KeySpan {
                     start: offset + column,
-                    end: offset + line.len(),
+                    end: offset + content.len(),
                     path: path_of(&stack),
                 });
             }
@@ -63,7 +69,7 @@ pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
         }
         spans.push(KeySpan {
             start: offset + value_at,
-            end: offset + line.len(),
+            end: offset + content.len(),
             path: path_of(&stack),
         });
     }
@@ -87,15 +93,6 @@ fn key_separator(entry: &str) -> Option<usize> {
     let bytes = entry.as_bytes();
     (0..bytes.len())
         .find(|index| bytes[*index] == b':' && bytes.get(index + 1).is_none_or(|n| *n == b' '))
-}
-
-/// A `#` that starts a comment: one at the start of a line or preceded
-/// by a space. `http://x#y` is not a comment.
-fn strip_comment(line: &str) -> &str {
-    let bytes = line.as_bytes();
-    line.char_indices()
-        .find(|(index, character)| *character == '#' && (*index == 0 || bytes[index - 1] == b' '))
-        .map_or(line, |(index, _)| &line[..index])
 }
 
 #[cfg(test)]

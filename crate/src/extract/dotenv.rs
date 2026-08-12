@@ -14,8 +14,11 @@ pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
 }
 
 fn span(offset: usize, line: &str) -> Option<KeySpan> {
+    // A whole-line comment strips to nothing and falls out at the
+    // emptiness guard below, so there is no second check for one.
+    let line = super::strip_comment(line, &['#'], true);
     let trimmed = line.trim_start();
-    if trimmed.is_empty() || trimmed.starts_with('#') {
+    if trimmed.is_empty() {
         return None;
     }
     let lead = line.len() - trimmed.len();
