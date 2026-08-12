@@ -197,15 +197,25 @@ fn scan_tool(arguments: &Value) -> Result<Value, String> {
         classes: extract::filter(arguments, "class", Class::parse, &Class::ALL)?,
     };
 
-    let targets = walk::collect(&inputs, &walk_options)?;
-    let scanned = targets
+    let walked = walk::collect(&inputs, &walk_options)?;
+    let scanned = walked
+        .files
         .iter()
         .map(|target| scan::scan_file(target, &options))
         .collect();
     // A binary file was never a text candidate, so it gets no report —
     // but the count is carried, because an agent reading `reports` as
     // the whole tree would otherwise be wrong about coverage.
-    let (read, binary) = scan::partition(scanned);
+    let (mut read, binary) = scan::partition(scanned);
+    // Same rule on this surface: a directory the walk could not open is
+    // a report line carrying a `skipped` diagnostic, never the end of
+    // the scan.
+    read.extend(
+        walked
+            .unreadable
+            .iter()
+            .map(|(path, reason)| scan::unreadable(path, reason)),
+    );
     let reports: Vec<Value> = read
         .iter()
         .map(|report| serde_json::to_value(report).expect("a report serializes"))

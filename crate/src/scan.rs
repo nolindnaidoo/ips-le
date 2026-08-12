@@ -136,8 +136,40 @@ fn is_binary(bytes: &[u8]) -> bool {
         .any(|byte| *byte == b'\0')
 }
 
+/// The path as the report spells it: **separated by `/` on every
+/// platform**.
+///
+/// A report is diffed against one produced on another machine and read
+/// by someone who does not have the tree. A sibling in this family
+/// shipped `\` on Windows for a whole release, which made every path in
+/// a Windows report differ from the same path in a Linux one for no
+/// reason a reader could see.
+#[cfg(windows)]
+fn report_path(path: &StdPath) -> String {
+    path.to_string_lossy().replace('\\', "/")
+}
+
+/// The path as the report spells it. Nothing to rewrite here: `\` is a
+/// legal character in a Unix filename, and replacing it would rename the
+/// file in the report.
+#[cfg(not(windows))]
+fn report_path(path: &StdPath) -> String {
+    path.to_string_lossy().into_owned()
+}
+
+/// The report for a path the walk itself could not open — a locked
+/// directory, a loop, an entry the filesystem refused.
+///
+/// Carried rather than dropped, and a warning rather than a failure: one
+/// unreadable directory must not end an audit of everything beside it,
+/// and must not silently narrow it either. `--strict` is how a pipeline
+/// asks for zero tolerance.
+pub(crate) fn unreadable(path: &StdPath, reason: &str) -> FileReport {
+    skipped(report_path(path), format_of(path), reason)
+}
+
 pub(crate) fn scan_file(path: &PathBuf, options: &ScanOptions) -> Scanned {
-    let file = path.to_string_lossy().into_owned();
+    let file = report_path(path);
     let format = options.format.unwrap_or_else(|| format_of(path));
 
     match std::fs::read(path) {

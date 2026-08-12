@@ -119,11 +119,23 @@ fn execute(args: &[String]) -> Result<u8, String> {
     let (reports, binary) = if options.stdin {
         (vec![scan_stdin(&options)?], 0)
     } else {
-        let scanned = walk::collect(&options.inputs, &options.walk)?
+        let walked = walk::collect(&options.inputs, &options.walk)?;
+        let scanned = walked
+            .files
             .iter()
             .map(|target| scan::scan_file(target, &options.scan))
             .collect();
-        scan::partition(scanned)
+        let (mut reports, binary) = scan::partition(scanned);
+        // A path the walk could not open is a report line, not the end
+        // of the run: one locked directory must not take the audit of
+        // everything beside it with it, and must not vanish either.
+        reports.extend(
+            walked
+                .unreadable
+                .iter()
+                .map(|(path, reason)| scan::unreadable(path, reason)),
+        );
+        (reports, binary)
     };
 
     write_reports(&reports)?;
