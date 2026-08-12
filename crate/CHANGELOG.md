@@ -39,9 +39,14 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   decided by whether the digits happened to fit a `u16` before anything
   judged them. A run of digits is a prefix; whether it fits the family
   is the range question. Only a prefix that is not digits at all
-  (`/abc`, `/`) is malformed now. Not reachable from a document — the
-  scanner attaches at most three digits to a `/` — but `extract_ips`
-  takes a token from anywhere.
+  (`/abc`, `/`) is malformed now.
+
+  **No output moves.** Neither surface can reach the branch: the scanner
+  attaches at most three digits to a `/` and stops at a fourth, so
+  `/65536` never becomes a block candidate on the CLI or through
+  `extract_ips` — it is two separate runs and no finding. The decision
+  layer was inconsistent with itself about a class of input, which stops
+  being harmless the day the scanner's cap changes.
 
 - **The MCP server no longer ends a session over a frame that is not
   UTF-8.** One such line exited 2 and took every frame that would have

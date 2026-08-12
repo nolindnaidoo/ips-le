@@ -405,10 +405,12 @@ fn read_cidr(base: &str, prefix: &str) -> Option<Reading> {
     // malformed — deciding that by whether the digits happen to fit a
     // `u16` would name the same mistake two different ways.
     //
-    // `scanner.rs` only ever attaches one to three digits after a `/`,
-    // so no document reaches the malformed branch today. It stays
-    // because `read` is the entry point for a token from anywhere, and
-    // the alternative is a block whose prefix nobody parsed.
+    // `scanner.rs` attaches at most three digits after a `/` and stops
+    // at a fourth, so no document reaches the malformed branch through
+    // either surface — `10.0.0.0/65536` arrives as two separate runs and
+    // no block at all. It stays because `read` answers for whatever
+    // token it is handed, and the alternative is a block whose prefix
+    // nobody parsed.
     if prefix.is_empty() || !prefix.bytes().all(|byte| byte.is_ascii_digit()) {
         return Some(refuse_cidr(
             Reason::MalformedAddress,
