@@ -262,13 +262,7 @@ pub(crate) fn exit_code(reports: &[FileReport], strict: bool) -> u8 {
 pub(crate) fn describe(report: &FileReport, found: &Found) -> String {
     let verdict = match (&found.refused, &found.normalized, found.class) {
         (Some(refusal), _, _) => format!("refused {:?}", refusal.reason),
-        (_, Some(normalized), Some(class)) => {
-            let class = serde_json::to_value(class)
-                .ok()
-                .and_then(|value| value.as_str().map(str::to_string))
-                .unwrap_or_default();
-            format!("{normalized}  {class}")
-        }
+        (_, Some(normalized), Some(class)) => format!("{normalized}  {}", class.name()),
         _ => String::new(),
     };
     format!(

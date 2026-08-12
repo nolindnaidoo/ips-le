@@ -167,7 +167,7 @@ fn emit<'a>(text: &'a str, run: Range<usize>, out: &mut Vec<Candidate<'a>>) -> u
 /// is only one in IPv6 or a MAC — so a run holding either without the
 /// shape to justify it is two things stuck together.
 fn splits(token: &str) -> bool {
-    if policy::is_mac_shaped(token) {
+    if policy::mac_octets(token).is_some() {
         return false;
     }
     if token.contains('-') {
@@ -301,6 +301,37 @@ mod tests {
     fn one_separator_between_a_name_and_a_run_is_punctuation() {
         assert_eq!(read("client_ip:10.0.0.1"), ["10.0.0.1"]);
         assert_eq!(read("from=10.0.0.1"), ["10.0.0.1"]);
+    }
+
+    /// The asymmetry that makes the two cases above different, on the
+    /// runs where it is the *only* thing separating them. A `::` after
+    /// a name is a language's path operator; one separator is
+    /// punctuation. Both runs are hex from the same alphabet, and
+    /// nothing but the number of separators tells them apart.
+    #[test]
+    fn a_path_operator_after_a_name_is_glue_and_one_colon_is_not() {
+        for text in [
+            "zzz::1.2.3.4",
+            "Widget::10.0.0.1",
+            "std::net::10.0.0.1",
+            "GROUP:::10.0.0.1",
+        ] {
+            assert!(read(text).is_empty(), "{text} produced {:?}", read(text));
+        }
+        assert_eq!(read("zzz:1.2.3.4"), ["1.2.3.4"]);
+        assert_eq!(read("upstream:2001:db8::1"), ["2001:db8::1"]);
+    }
+
+    /// A run of nothing but `.` and `-` trims away to nothing, and must
+    /// not reach the policy layer as an empty token. `::` is not in this
+    /// list on purpose: it is the unspecified address, and the trim
+    /// keeps it for exactly that reason.
+    #[test]
+    fn a_run_that_trims_away_to_nothing_is_not_a_candidate() {
+        for text in ["...", " -.- ", "-.-.-", "prose. Next."] {
+            assert!(candidates(text).is_empty(), "{text} -> {:?}", tokens(text));
+        }
+        assert_eq!(tokens(" :: "), ["::"], "the unspecified address survives");
     }
 
     /// A log file is mostly this, and none of it is an address.

@@ -99,6 +99,27 @@ impl Class {
             _ => None,
         }
     }
+
+    /// The name the human line prints, which is the name the JSON
+    /// carries.
+    ///
+    /// Exhaustive on purpose: a new class fails to compile here rather
+    /// than reaching stderr as an empty word. A test holds every answer
+    /// equal to what serde renders, so the two spellings cannot drift.
+    pub(crate) const fn name(self) -> &'static str {
+        match self {
+            Self::Loopback => "loopback",
+            Self::Private => "private",
+            Self::LinkLocal => "link-local",
+            Self::Cgnat => "cgnat",
+            Self::Multicast => "multicast",
+            Self::Broadcast => "broadcast",
+            Self::Reserved => "reserved",
+            Self::Documentation => "documentation",
+            Self::UniqueLocal => "unique-local",
+            Self::Global => "global",
+        }
+    }
 }
 
 /// Why this tool declined to say what a candidate is.
@@ -212,8 +233,8 @@ pub(crate) fn read(token: &str, context: Context) -> Option<Reading> {
     if let Some((base, prefix)) = token.split_once('/') {
         return read_cidr(base, prefix);
     }
-    if is_mac_shaped(token) {
-        return Some(read_mac(token));
+    if let Some(octets) = mac_octets(token) {
+        return Some(read_mac(octets));
     }
     if token.contains(':') {
         // Gated on the shape rather than on the parse. `10:30:00` and
@@ -379,6 +400,10 @@ fn read_cidr(base: &str, prefix: &str) -> Option<Reading> {
         return None;
     }
 
+    // `scanner.rs` only ever attaches one to three digits after a `/`,
+    // so no document reaches this today. It stays because `read` is the
+    // entry point for a token from anywhere, and the alternative to a
+    // named refusal here is a block with a prefix nobody parsed.
     let Ok(width) = prefix.parse::<u16>() else {
         return Some(refuse_cidr(
             Reason::MalformedAddress,
@@ -403,16 +428,22 @@ fn cidr_v4(base: &str, prefix: u16) -> Reading {
             format!("{base}/{prefix} does not carry an IPv4 address."),
         );
     };
-    if prefix > 32 {
+    // Narrowing **is** the range check: 0 to 32 fits a `u8` and nothing
+    // outside it does, so there is no fallback here and the arithmetic
+    // below can never run on a prefix nobody checked.
+    let width = u8::try_from(prefix).ok().filter(|width| *width <= 32);
+    let Some(prefix) = width else {
         return refuse_cidr(
             Reason::PrefixOutOfRange,
             format!("an IPv4 prefix is 0 to 32; {base}/{prefix} names {prefix}."),
         );
-    }
+    };
 
-    // Both checked above, so neither conversion can be lossy.
-    let prefix = u8::try_from(prefix).unwrap_or(32);
     let bits = u32::from(address);
+    // `/0` asks to shift by the full width, which Rust refuses rather
+    // than wraps. The mask it is asking for is zero, and saying so here
+    // is what keeps `0.0.0.0/0` from covering one address instead of
+    // all of them.
     let mask = u32::MAX.checked_shl(32 - u32::from(prefix)).unwrap_or(0);
     let network = Ipv4Addr::from(bits & mask);
     let last = Ipv4Addr::from((bits & mask) | !mask);
@@ -438,15 +469,18 @@ fn cidr_v6(base: &str, prefix: u16) -> Reading {
             format!("{base}/{prefix} does not carry an IPv6 address."),
         );
     };
-    if prefix > 128 {
+    // As in `cidr_v4`: the narrowing is the range check, so nothing
+    // downstream runs on an unchecked prefix.
+    let width = u8::try_from(prefix).ok().filter(|width| *width <= 128);
+    let Some(prefix) = width else {
         return refuse_cidr(
             Reason::PrefixOutOfRange,
             format!("an IPv6 prefix is 0 to 128; {base}/{prefix} names {prefix}."),
         );
-    }
+    };
 
-    let prefix = u8::try_from(prefix).unwrap_or(128);
     let bits = u128::from(address);
+    // `::/0` shifts by the full width; the mask it asks for is zero.
     let mask = u128::MAX.checked_shl(128 - u32::from(prefix)).unwrap_or(0);
     let network = Ipv6Addr::from(bits & mask);
     let last = Ipv6Addr::from((bits & mask) | !mask);
@@ -486,62 +520,59 @@ fn refuse_cidr(reason: Reason, detail: String) -> Reading {
 
 // -- MAC -------------------------------------------------------------
 
+/// The six octets of a MAC address, or `None` for anything that is not
+/// one.
+///
 /// Six two-digit hex groups joined by one separator, `:` or `-`, used
 /// consistently. `aa:bb-cc:dd-ee:ff` is not a MAC address and mixing
 /// them is how a hand-written line ends up being read as one.
 ///
-/// `scanner.rs` asks the same question — it has to hold a run together
-/// for exactly the tokens this will read as a MAC — and a test there
-/// holds the two answers equal.
-pub(crate) fn is_mac_shaped(token: &str) -> bool {
-    for separator in [':', '-'] {
-        let groups: Vec<&str> = token.split(separator).collect();
-        let shaped = groups.len() == 6
-            && groups
-                .iter()
-                .all(|group| group.len() == 2 && group.bytes().all(|b| b.is_ascii_hexdigit()));
-        if shaped {
-            return true;
-        }
-    }
-    false
+/// **Shape and value in one answer**, so the test and the read cannot
+/// disagree. `scanner.rs` asks this same question — it has to hold a run
+/// together for exactly the tokens this will read as a MAC — and a test
+/// there holds the two answers equal.
+pub(crate) fn mac_octets(token: &str) -> Option<[u8; 6]> {
+    [':', '-']
+        .into_iter()
+        .find_map(|separator| octets_under(token, separator))
 }
 
-fn read_mac(token: &str) -> Reading {
-    let separator = if token.contains(':') { ':' } else { '-' };
-    let octets: Vec<u8> = token
-        .split(separator)
-        .filter_map(|group| u8::from_str_radix(group, 16).ok())
-        .collect();
-    // `is_mac_shaped` already proved every group is two hex digits, so
-    // this cannot be short — but reading a wrong first octet would give
-    // a wrong class, and that is worth a guard rather than an index.
-    let Some(&first) = octets.first() else {
-        return Reading::Refused {
-            kind: Some(Kind::Mac),
-            refusal: Refusal {
-                reason: Reason::MalformedAddress,
-                detail: format!("{token} has the shape of a MAC address and is not one."),
-            },
-        };
-    };
+fn octets_under(token: &str, separator: char) -> Option<[u8; 6]> {
+    let groups: Vec<&str> = token.split(separator).collect();
+    // Six, and no seventh: `aa:bb:cc:dd:ee:ff:zz` is not a MAC address
+    // with a suffix, it is not a MAC address.
+    if groups.len() != 6 {
+        return None;
+    }
+    let octets: Vec<u8> = groups.iter().copied().filter_map(group_octet).collect();
+    <[u8; 6]>::try_from(octets.as_slice()).ok()
+}
 
-    let normalized = octets
-        .iter()
-        .map(|octet| format!("{octet:02x}"))
-        .collect::<Vec<String>>()
-        .join(":");
+/// Exactly two hex digits, and the byte they spell. Two hex digits never
+/// exceed `0xff`, so the radix conversion cannot overflow.
+fn group_octet(group: &str) -> Option<u8> {
+    if group.len() != 2 || !group.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return None;
+    }
+    u8::from_str_radix(group, 16).ok()
+}
+
+fn read_mac(octets: [u8; 6]) -> Reading {
     // Three statements a MAC's own bits support, and no more. The
     // universal/local bit is deliberately not reported in 0.1.0 —
     // SPEC.md says so — because none of the ten classes means it.
-    let class = match (normalized.as_str(), first & 1) {
-        ("ff:ff:ff:ff:ff:ff", _) => Class::Broadcast,
-        (_, 1) => Class::Multicast,
+    let class = match octets {
+        [0xff, 0xff, 0xff, 0xff, 0xff, 0xff] => Class::Broadcast,
+        [first, ..] if first & 1 == 1 => Class::Multicast,
         _ => Class::Global,
     };
     Reading::Address {
         kind: Kind::Mac,
-        normalized,
+        normalized: octets
+            .iter()
+            .map(|octet| format!("{octet:02x}"))
+            .collect::<Vec<String>>()
+            .join(":"),
         class,
         block: None,
     }
@@ -789,6 +820,25 @@ mod tests {
         assert!(read("aa:bb-cc:dd-ee:ff", Context::default()).is_none());
     }
 
+    /// Six groups exactly. A seventh group whose contents are not hex
+    /// must not be discarded and the front read as hardware.
+    #[test]
+    fn a_seventh_group_is_not_a_mac_with_a_suffix() {
+        for token in [
+            "aa:bb:cc:dd:ee:ff:zz",
+            "aa:bb:cc:dd:ee:ff:00",
+            "aa:bb:cc:dd:ee",
+            "aa:bb:cc:dd:ee:fff",
+            "aa:bb:cc:dd:ee:zz",
+        ] {
+            assert!(mac_octets(token).is_none(), "{token}");
+        }
+        assert_eq!(
+            mac_octets("aa:bb:cc:dd:ee:ff"),
+            Some([0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff])
+        );
+    }
+
     // -- the refusals ------------------------------------------------
 
     #[test]
@@ -910,6 +960,74 @@ mod tests {
         );
     }
 
+    /// A prefix too wide for a `u8` is out of range for the same reason
+    /// `/33` is, and must not come back as a different refusal because
+    /// of how it is stored. The scanner reads at most three digits, so
+    /// `/999` is the widest prefix that can reach here from a document.
+    #[test]
+    fn a_prefix_too_wide_to_narrow_is_still_out_of_range() {
+        for token in ["10.0.0.0/999", "2001:db8::/999"] {
+            assert_eq!(
+                refusal(token, Context::default()),
+                Reason::PrefixOutOfRange,
+                "{token}"
+            );
+        }
+    }
+
+    /// A block whose base is the right shape and not an address is
+    /// malformed, on both families — the prefix is beside the point.
+    #[test]
+    fn a_block_over_a_base_that_is_not_an_address_is_malformed() {
+        for token in [
+            "256.1.1.1/24",
+            "1.2.3.9999/8",
+            "2001:db8:::1/64",
+            "12345::/16",
+        ] {
+            assert_eq!(
+                refusal(token, Context::default()),
+                Reason::MalformedAddress,
+                "{token}"
+            );
+        }
+    }
+
+    /// A prefix that is not a number at all. No document reaches this —
+    /// the scanner attaches only digits to a `/` — but `read` takes a
+    /// token from anywhere, and the answer has to be a named refusal
+    /// rather than a block whose prefix nobody parsed.
+    #[test]
+    fn a_prefix_that_is_not_a_number_is_malformed() {
+        for token in ["10.0.0.0/abc", "2001:db8::/x", "10.0.0.0/65536"] {
+            assert_eq!(
+                refusal(token, Context::default()),
+                Reason::MalformedAddress,
+                "{token}"
+            );
+        }
+    }
+
+    /// A `/` after something with no address shape is a path or a
+    /// fraction. Reporting it would put every `src/v1` and every `1/2`
+    /// in the report.
+    #[test]
+    fn a_slash_after_a_non_address_is_not_a_block() {
+        for token in ["1/2", "10.0/8", "1.2.3/24", "ab/16"] {
+            assert!(read(token, Context::default()).is_none(), "{token}");
+        }
+    }
+
+    /// A dotted run whose groups are not decimal is not an address and
+    /// not an ambiguity either. `fe.ff` is two hex bytes in a dump, and
+    /// a report that named it would name every one of them.
+    #[test]
+    fn a_dotted_run_that_is_not_decimal_is_silent() {
+        for token in ["a.b", "fe.ff", "10..1", "1.2.c.4", "."] {
+            assert!(read(token, Context::default()).is_none(), "{token}");
+        }
+    }
+
     // -- CIDR --------------------------------------------------------
 
     #[test]
@@ -994,6 +1112,19 @@ mod tests {
         }
         assert!(Kind::parse("ipv5").is_none());
         assert!(Class::parse("public").is_none());
+    }
+
+    /// The human line prints `Class::name` and the JSON prints serde's
+    /// rendering. They are two spellings of one vocabulary, so a class
+    /// added to one and not the other has to fail here rather than on
+    /// somebody's stderr.
+    #[test]
+    fn the_printed_name_of_a_class_is_the_name_serde_writes() {
+        for name in Class::ALL {
+            let class = Class::parse(name).expect(name);
+            assert_eq!(class.name(), name);
+            assert_eq!(serde_json::to_value(class).expect("serializes"), name);
+        }
     }
 
     #[test]
