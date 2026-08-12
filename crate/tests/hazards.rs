@@ -699,6 +699,52 @@ fn permission_denied_is_named_carried_and_never_ends_the_run() {
     );
 }
 
+/// **A malformed frame is dropped, not fatal — whichever way it is
+/// malformed.** A line that is not JSON was skipped and the loop went
+/// on; a line that is not UTF-8 killed the session with exit 2. Two
+/// policies for one class of input, and the harsher one fired on the
+/// case a client is most likely to produce by accident — a stray byte in
+/// a document being piped through. Neither carries an id to answer
+/// against, so neither can be reported, and ending a session over one
+/// costs every frame that would have followed.
+#[test]
+fn a_malformed_mcp_frame_is_dropped_and_the_server_answers_the_next_one() {
+    use std::io::Write as _;
+
+    let mut child = Command::new(BINARY)
+        .arg("mcp")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("the binary runs");
+
+    {
+        let stdin = child.stdin.as_mut().expect("stdin");
+        // Not JSON, then not UTF-8, then a frame that must be answered.
+        stdin.write_all(b"this is not json\n").expect("writes");
+        stdin
+            .write_all(b"{\"jsonrpc\":\"2.0\",\xff\xfe not utf8}\n")
+            .expect("writes");
+        stdin
+            .write_all(b"{\"jsonrpc\":\"2.0\",\"id\":7,\"method\":\"ping\",\"params\":{}}\n")
+            .expect("writes");
+    }
+    drop(child.stdin.take());
+
+    let output = child.wait_with_output().expect("the child finishes");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "a malformed frame ended the session\nstdout: {stdout}"
+    );
+    let reply: serde_json::Value = serde_json::from_str(stdout.trim()).unwrap_or_else(|error| {
+        panic!("the frame after the bad ones went unanswered ({error}): {stdout}")
+    });
+    assert_eq!(reply["id"], 7, "{stdout}");
+}
+
 /// The only two ways to reach exit 2 without `--strict`: a flag that is
 /// not one, and a path that is not there. Both are the *question* being
 /// malformed, and neither writes to the protocol stream.

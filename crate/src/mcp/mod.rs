@@ -42,15 +42,23 @@ pub(crate) fn serve() -> ExitCode {
     let stdin = std::io::stdin();
     let mut stdout = std::io::stdout();
     for line in stdin.lock().lines() {
-        let Ok(line) = line else {
-            return ExitCode::from(2);
+        let line = match line {
+            Ok(line) => line,
+            // **A malformed frame is dropped, not fatal**, and bytes
+            // that are not UTF-8 are a malformed frame — the same
+            // answer a frame that is not JSON gets, for the same
+            // reason: it carries no id, so there is nobody to report it
+            // to, and ending the session costs every frame that would
+            // have followed.
+            Err(error) if error.kind() == std::io::ErrorKind::InvalidData => continue,
+            // Anything else is the stream itself failing rather than
+            // one frame being wrong. Reading on would spin.
+            Err(_) => return ExitCode::from(2),
         };
         if line.trim().is_empty() {
             continue;
         }
         let Ok(request) = serde_json::from_str::<Value>(&line) else {
-            // A frame that is not JSON has no id to answer against;
-            // dropping it is the only honest option.
             continue;
         };
         let Some(response) = handle(&request) else {

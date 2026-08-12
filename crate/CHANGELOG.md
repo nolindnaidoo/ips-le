@@ -43,6 +43,15 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   scanner attaches at most three digits to a `/` — but `extract_ips`
   takes a token from anywhere.
 
+- **The MCP server no longer ends a session over a frame that is not
+  UTF-8.** One such line exited 2 and took every frame that would have
+  followed with it, while a line that was not JSON was skipped and the
+  loop went on — two policies for one class of input, and the harsher one
+  fired on the case a client is likeliest to produce by accident. A
+  malformed frame is dropped either way: it carries no id, so there is
+  nobody to report it to. A genuine stream failure still stops the
+  server, which is the case that would otherwise spin.
+
 ### Changed
 
 - `crate/SPEC.md` states the comment rule per dialect, and the corpus
