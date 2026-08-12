@@ -466,6 +466,29 @@ mod tests {
         assert_eq!(texts(&report), ["8.8.8.8"]);
     }
 
+    /// The half of the rule a class filter cannot reach. `--kind` is
+    /// judged on a value a refusal may not have: `deadbeefcafe` is a MAC
+    /// address or the front of a hash, and naming either kind would be
+    /// the guess the refusal exists to avoid. So a kind-less refusal
+    /// survives every `--kind`, or asking for one kind silently drops
+    /// the findings that have none.
+    #[test]
+    fn a_kind_filter_never_hides_a_refusal_that_has_no_kind() {
+        let content = "a 10.0.0.1 b deadbeefcafe c 10.0.1 d 2001:db8::1";
+        let report = scan_content(
+            content,
+            "a.txt".into(),
+            "unknown",
+            &ScanOptions {
+                kinds: vec![Kind::Ipv4],
+                ..plain()
+            },
+        );
+        assert_eq!(texts(&report), ["10.0.0.1", "deadbeefcafe", "10.0.1"]);
+        assert_eq!(report.summary.addresses, 1);
+        assert_eq!(report.summary.refused, 2);
+    }
+
     /// A filter narrows what this tool *claims*, never what it
     /// *declined to claim*. Dropping a refusal from `--class private`
     /// would hide the octal hazard from the person auditing an
