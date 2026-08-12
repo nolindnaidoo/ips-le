@@ -8,6 +8,7 @@ use std::path::{Path as StdPath, PathBuf};
 use serde::Serialize;
 
 use crate::extract::{self, Class, Found, Kind, resolve_format};
+use crate::walk::{self, WalkOptions};
 
 /// The report format version.
 ///
@@ -66,26 +67,6 @@ pub(crate) struct ScanOptions {
     pub(crate) kinds: Vec<Kind>,
     /// Keep only these classes. Empty means every class.
     pub(crate) classes: Vec<Class>,
-}
-
-impl ScanOptions {
-    /// Whether a finding survives the filters.
-    ///
-    /// **A refusal survives every filter it cannot be judged by.** A
-    /// caller who asked for `--class private` is asking a question the
-    /// tool declined to answer for `010.1.1.1`; dropping it would hide
-    /// the one finding they most need, and quietly.
-    fn keeps(&self, found: &Found) -> bool {
-        let kind_ok = self.kinds.is_empty()
-            || found.kind.is_some_and(|kind| self.kinds.contains(&kind))
-            || found.is_refusal() && found.kind.is_none();
-        let class_ok = self.classes.is_empty()
-            || found
-                .class
-                .is_some_and(|class| self.classes.contains(&class))
-            || found.is_refusal();
-        kind_ok && class_ok
-    }
 }
 
 /// What reading one file produced.
@@ -168,6 +149,35 @@ pub(crate) fn unreadable(path: &StdPath, reason: &str) -> FileReport {
     skipped(report_path(path), format_of(path), reason)
 }
 
+/// Every report a set of named paths produces, and the count of files
+/// that were never text.
+///
+/// **Both surfaces come through here**, so neither can grow its own
+/// idea of what a binary file is or what an unreadable directory costs.
+/// A path the walk could not open becomes a report line rather than the
+/// end of the run: one locked directory must not take the audit of
+/// everything beside it with it, and must not vanish either.
+pub(crate) fn tree(
+    inputs: &[PathBuf],
+    walk_options: &WalkOptions,
+    options: &ScanOptions,
+) -> Result<(Vec<FileReport>, usize), String> {
+    let walked = walk::collect(inputs, walk_options)?;
+    let scanned = walked
+        .files
+        .iter()
+        .map(|target| scan_file(target, options))
+        .collect();
+    let (mut reports, binary) = partition(scanned);
+    reports.extend(
+        walked
+            .unreadable
+            .iter()
+            .map(|(path, reason)| unreadable(path, reason)),
+    );
+    Ok((reports, binary))
+}
+
 pub(crate) fn scan_file(path: &PathBuf, options: &ScanOptions) -> Scanned {
     let file = report_path(path);
     let format = options.format.unwrap_or_else(|| format_of(path));
@@ -199,7 +209,7 @@ pub(crate) fn scan_content(
 ) -> FileReport {
     let addresses: Vec<Found> = extract::find(content, format)
         .into_iter()
-        .filter(|found| options.keeps(found))
+        .filter(|found| found.survives(&options.kinds, &options.classes))
         .collect();
 
     let mut diagnostics = Vec::new();

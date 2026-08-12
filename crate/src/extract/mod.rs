@@ -66,6 +66,28 @@ impl Found {
     pub(crate) const fn is_refusal(&self) -> bool {
         self.refused.is_some()
     }
+
+    /// Whether this finding survives a kind and class filter. Empty
+    /// means every value of that dimension.
+    ///
+    /// **A refusal survives every filter it cannot be judged by.** A
+    /// caller who asked for `private` is asking a question this tool
+    /// declined to answer for `010.1.1.1`; dropping it would hide the
+    /// one finding they most need, and hide it quietly.
+    ///
+    /// It lives here rather than on either surface's options because
+    /// both surfaces filter — the CLI through `ScanOptions` and the
+    /// `extract_ips` tool on its own arguments — and two copies of this
+    /// rule would be two chances to lose a refusal on one of them.
+    pub(crate) fn survives(&self, kinds: &[Kind], classes: &[Class]) -> bool {
+        let kind_ok = kinds.is_empty()
+            || self.kind.is_some_and(|kind| kinds.contains(&kind))
+            || self.is_refusal() && self.kind.is_none();
+        let class_ok = classes.is_empty()
+            || self.class.is_some_and(|class| classes.contains(&class))
+            || self.is_refusal();
+        kind_ok && class_ok
+    }
 }
 
 /// A region of the document that a key names, and the key.
@@ -93,6 +115,19 @@ pub(crate) fn lines(text: &str) -> impl Iterator<Item = (usize, &str)> {
         offset += line.len();
         (start, line.trim_end_matches(['\n', '\r']))
     })
+}
+
+/// A key under a section or table header, or the bare key when there is
+/// none.
+///
+/// Shared by the INI and TOML readers, which spell a header differently
+/// and join it identically. Two copies of a four-line join is how one of
+/// them ends up emitting a leading `.` for a top-level key.
+pub(crate) fn dotted(prefix: &str, key: &str) -> String {
+    if prefix.is_empty() {
+        return key.to_string();
+    }
+    format!("{prefix}.{key}")
 }
 
 /// Why a document yielded no key paths, when the reason is a parse

@@ -95,17 +95,12 @@ pub(crate) fn run(arguments: &Value) -> Result<Value, String> {
         .into_iter()
         .collect();
 
+    // The same rule the CLI filters by, from the same place: a refusal
+    // survives every filter it cannot be judged by, and a second copy of
+    // that here would be a second chance to lose one.
     let mut found: Vec<Value> = extract::find(content, format)
         .into_iter()
-        .filter(|one| {
-            let kind_ok = kinds.is_empty()
-                || one.kind.is_some_and(|kind| kinds.contains(&kind))
-                || one.is_refusal() && one.kind.is_none();
-            let class_ok = classes.is_empty()
-                || one.class.is_some_and(|class| classes.contains(&class))
-                || one.is_refusal();
-            kind_ok && class_ok
-        })
+        .filter(|one| one.survives(&kinds, &classes))
         .map(|one| serde_json::to_value(one).expect("a finding serializes"))
         .collect();
 

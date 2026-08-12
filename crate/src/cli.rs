@@ -12,7 +12,7 @@ use std::process::ExitCode;
 
 use crate::extract::{Class, Kind, resolve_format};
 use crate::scan::{self, FileReport, ScanOptions};
-use crate::walk::{self, WalkOptions};
+use crate::walk::WalkOptions;
 
 const USAGE: &str = "usage: ips-le [options] <file|dir>...
        ips-le [options] --stdin [--format <format>]
@@ -119,23 +119,7 @@ fn execute(args: &[String]) -> Result<u8, String> {
     let (reports, binary) = if options.stdin {
         (vec![scan_stdin(&options)?], 0)
     } else {
-        let walked = walk::collect(&options.inputs, &options.walk)?;
-        let scanned = walked
-            .files
-            .iter()
-            .map(|target| scan::scan_file(target, &options.scan))
-            .collect();
-        let (mut reports, binary) = scan::partition(scanned);
-        // A path the walk could not open is a report line, not the end
-        // of the run: one locked directory must not take the audit of
-        // everything beside it with it, and must not vanish either.
-        reports.extend(
-            walked
-                .unreadable
-                .iter()
-                .map(|(path, reason)| scan::unreadable(path, reason)),
-        );
-        (reports, binary)
+        scan::tree(&options.inputs, &options.walk, &options.scan)?
     };
 
     write_reports(&reports)?;
@@ -247,8 +231,8 @@ fn value_for<'a>(
 /// because those files produce no report line at all.
 fn summarise(reports: &[FileReport], binary: usize) {
     let mut stderr = std::io::stderr().lock();
-    let mut addresses = 0;
-    let mut refused = 0;
+    let addresses: usize = reports.iter().map(|report| report.summary.addresses).sum();
+    let refused: usize = reports.iter().map(|report| report.summary.refused).sum();
 
     for report in reports {
         for diagnostic in &report.diagnostics {
@@ -257,8 +241,6 @@ fn summarise(reports: &[FileReport], binary: usize) {
         for found in &report.addresses {
             let _ = writeln!(stderr, "{}", scan::describe(report, found));
         }
-        addresses += report.summary.addresses;
-        refused += report.summary.refused;
     }
 
     let _ = writeln!(

@@ -30,7 +30,7 @@ use serde_json::{Value, json};
 
 use crate::extract::{Class, Kind, resolve_format};
 use crate::scan::{self, ScanOptions};
-use crate::walk::{self, WalkOptions};
+use crate::walk::WalkOptions;
 
 const PROTOCOL_VERSION: &str = "2025-06-18";
 
@@ -197,38 +197,17 @@ fn scan_tool(arguments: &Value) -> Result<Value, String> {
         classes: extract::filter(arguments, "class", Class::parse, &Class::ALL)?,
     };
 
-    let walked = walk::collect(&inputs, &walk_options)?;
-    let scanned = walked
-        .files
-        .iter()
-        .map(|target| scan::scan_file(target, &options))
-        .collect();
     // A binary file was never a text candidate, so it gets no report —
     // but the count is carried, because an agent reading `reports` as
     // the whole tree would otherwise be wrong about coverage.
-    let (mut read, binary) = scan::partition(scanned);
-    // Same rule on this surface: a directory the walk could not open is
-    // a report line carrying a `skipped` diagnostic, never the end of
-    // the scan.
-    read.extend(
-        walked
-            .unreadable
-            .iter()
-            .map(|(path, reason)| scan::unreadable(path, reason)),
-    );
+    let (read, binary) = scan::tree(&inputs, &walk_options, &options)?;
     let reports: Vec<Value> = read
         .iter()
         .map(|report| serde_json::to_value(report).expect("a report serializes"))
         .collect();
 
-    let addresses: u64 = read
-        .iter()
-        .map(|report| report.summary.addresses as u64)
-        .sum();
-    let refused: u64 = read
-        .iter()
-        .map(|report| report.summary.refused as u64)
-        .sum();
+    let addresses: usize = read.iter().map(|report| report.summary.addresses).sum();
+    let refused: usize = read.iter().map(|report| report.summary.refused).sum();
 
     let mut diagnostics: Vec<Value> = read
         .iter()

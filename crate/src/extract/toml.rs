@@ -10,7 +10,7 @@
 //! path is a locator, and the address itself is read from the bytes by
 //! the scan whether this reader followed the document or not.
 
-use super::{KeySpan, lines};
+use super::{KeySpan, dotted, lines};
 
 pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
     let mut table = String::new();
@@ -51,11 +51,7 @@ pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
         if key.is_empty() {
             continue;
         }
-        let path = if table.is_empty() {
-            key.to_string()
-        } else {
-            format!("{table}.{key}")
-        };
+        let path = dotted(&table, key);
         spans.push(KeySpan {
             start: offset + separator + 1,
             end: offset + line.len(),
@@ -175,5 +171,17 @@ mod tests {
     #[test]
     fn a_commented_line_names_nothing() {
         assert!(keys("# bind = \"10.0.0.5\"\n").is_empty());
+    }
+
+    /// A line with no `=`, a `=` with no key before it, and a bracket
+    /// that never closes. None of them is a key, and none of them is an
+    /// error either: the byte scan already ran over the same line.
+    #[test]
+    fn a_line_that_names_no_key_yields_no_span() {
+        assert!(keys("just some prose 10.0.0.1\n").is_empty());
+        assert!(keys("= \"10.0.0.1\"\n").is_empty());
+        assert!(keys("[unclosed 10.0.0.1\n").is_empty());
+        assert_eq!(table_header("[unclosed"), None);
+        assert_eq!(table_header("bind = 1"), None);
     }
 }

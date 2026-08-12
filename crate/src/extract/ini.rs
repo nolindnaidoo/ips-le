@@ -5,7 +5,7 @@
 //! nesting to reconstruct, so there is no ambiguity to resolve and no
 //! reason for a parser.
 
-use super::{KeySpan, lines};
+use super::{KeySpan, dotted, lines};
 
 pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
     let mut section = String::new();
@@ -33,15 +33,10 @@ fn span(offset: usize, line: &str, section: &str) -> Option<KeySpan> {
     if key.is_empty() {
         return None;
     }
-    let path = if section.is_empty() {
-        key.to_string()
-    } else {
-        format!("{section}.{key}")
-    };
     Some(KeySpan {
         start: offset + separator + 1,
         end: offset + line.len(),
-        path,
+        path: dotted(section, key),
     })
 }
 
@@ -89,5 +84,15 @@ mod tests {
     #[test]
     fn a_section_header_is_not_a_value() {
         assert_eq!(at("[10.0.0.1]\na = b\n", "10.0.0.1"), None);
+    }
+
+    /// A line with no separator, and a separator with no key before it,
+    /// both name nothing. The addresses on them are still scanned — the
+    /// reader only ever costs a key path, never a finding.
+    #[test]
+    fn a_line_that_names_no_key_yields_no_span() {
+        assert!(keys("just some prose 10.0.0.1\n").is_empty());
+        assert!(keys("= 10.0.0.1\n").is_empty());
+        assert!(keys("   : 10.0.0.1\n").is_empty());
     }
 }
