@@ -311,22 +311,31 @@ than trusted.
 - [`crate/README.md`](crate/README.md) — the crate's own front page.
 - [`CHANGELOG.md`](CHANGELOG.md) — what changed and when.
 
-## More from the LE Family
+## More from the LE family
 
 Every tool in the family, one page: **[letools.dev](https://letools.dev)**
 
-- **[Paths-LE](https://letools.dev/tools/paths-le)** — Extract file paths from JS/TS imports, JSON, HTML, CSS, TOML, CSV, and .env
-- **[String-LE](https://letools.dev/tools/string-le)** — Extract string values for i18n from JSON, YAML, CSV, TOML, INI, and .env
-- **[Numbers-LE](https://letools.dev/tools/numbers-le)** — Extract numeric values from JSON, YAML, CSV, TOML, INI, and .env
-- **[EnvSync-LE](https://letools.dev/tools/envsync-le)** — Spot missing keys across your .env files, with a markdown report
-- **[Regex-LE](https://letools.dev/tools/regex-le)** — Find, test, and validate regular expressions with ReDoS screening
+- **[Paths-LE](https://letools.dev/tools/paths-le)** — Extract file paths and report whether they still point at anything
+- **[URLs-LE](https://letools.dev/tools/urls-le)** — Extract every URL, with its protocol and exact position
+- **[Numbers-LE](https://letools.dev/tools/numbers-le)** — Find every hardcoded number so a person can check them
+- **[String-LE](https://letools.dev/tools/string-le)** — Get every string out where a person can read them
 - **[Secrets-LE](https://letools.dev/tools/secrets-le)** — Detect and sanitize credentials locally, before you commit
-- **[Colors-LE](https://letools.dev/tools/colors-le)** — Extract and analyze colors from CSS, SCSS, LESS, Stylus, HTML, JS/TS, and SVG
-- **[URLs-LE](https://letools.dev/tools/urls-le)** — Extract URLs from documentation, configs, and code
-- **[Dates-LE](https://letools.dev/tools/dates-le)** — Extract and analyze dates from logs, configs, and code
-- **[Scrape-LE](https://letools.dev/tools/scrape-le)** — Load a URL in headless Chromium and see what will block your scraper
+- **[Regex-LE](https://letools.dev/tools/regex-le)** — Find, test and validate regular expressions with ReDoS screening
+- **[Colors-LE](https://letools.dev/tools/colors-le)** — Extract and analyze colors from CSS, SCSS, HTML, JS/TS and SVG
+- **[Dates-LE](https://letools.dev/tools/dates-le)** — Extract and analyze dates from logs, configs and code
+- **[EnvSync-LE](https://letools.dev/tools/envsync-le)** — Spot missing keys across your .env files
+- **[Scrape-LE](https://letools.dev/tools/scrape-le)** — See what will block your scraper before you write it
 
-**Contact Developer** — [nolindnaidoo.com](https://nolindnaidoo.com) · [GitHub](https://github.com/nolindnaidoo) · [LinkedIn](https://www.linkedin.com/in/nolindnaidoo/)
+Newer, and crate-first — published on GitHub, not yet listed on the site:
+
+- **[Units-LE](https://github.com/nolindnaidoo/units-le)** — Extract quantities — a number with its unit — and refuse the ambiguous ones
+- **[IDs-LE](https://github.com/nolindnaidoo/ids-le)** — Extract UUID, ULID, NanoID, ObjectId and Snowflake, with embedded timestamps decoded
+- **[Versions-LE](https://github.com/nolindnaidoo/versions-le)** — Find dependency constraints that conflict across a repository's manifests
+- **[Unicode-LE](https://github.com/nolindnaidoo/unicode-le)** — Detect bidi controls, invisibles, homoglyphs and mixed scripts
+- **[i18n-LE](https://github.com/nolindnaidoo/i18n-le)** — Identify the i18n library a project uses, then audit its catalogues by that library's rules
+
+Each stands on its own: no shared crate, no published core. Where two of
+them agree it is because the same answer was right twice.
 
 ## License
 
