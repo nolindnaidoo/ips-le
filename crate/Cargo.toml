@@ -1,11 +1,11 @@
 [package]
 name = "ips-le"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.88"
 license = "MIT"
 readme = "README.md"
-description = "Find every IP address, CIDR block and MAC address in a tree, normalized and classified"
+description = "Extract every IP address, CIDR block and MAC, normalized and classified by scope"
 authors = ["Nolin D Naidoo"]
 homepage = "https://letools.dev/tools/ips-le"
 repository = "https://github.com/nolindnaidoo/ips-le"
