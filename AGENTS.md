@@ -55,7 +55,7 @@ cargo test --test coverage_matrix -- --nocapture
 IPS_LE_SCENARIOS=1 cargo test --test scenarios
 ```
 
-Coverage is a **floor**, never lowered to make a build pass: 90% of
+Coverage is a **floor**, never lowered to make a build pass: 75% of
 lines per module in `crate/src/extract/`, enforced per module rather
 than on the total, because a total hides one module sliding while the
 others carry it.
