@@ -11,8 +11,8 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 First release. Core functionality, not a hardened 1.0 — the known limits
 are written down in [`crate/SPEC.md`](crate/SPEC.md) rather than left to
-be discovered. **Not published to crates.io yet**; build it from this
-repository with `cargo install --path crate`.
+be discovered. `cargo install ips-le`, or from this repository with
+`cargo install --path crate`.
 
 ### Added
 

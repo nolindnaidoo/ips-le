@@ -245,8 +245,11 @@ two addresses; this is how it stops having to guess.
 
 ## Install
 
-**Not on crates.io yet.** `cargo install ips-le` does not work today —
-0.1.0 is unpublished. Build it from this repository instead:
+```bash
+cargo install ips-le
+```
+
+Or build it from this repository:
 
 ```bash
 git clone https://github.com/nolindnaidoo/ips-le
