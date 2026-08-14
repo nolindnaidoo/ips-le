@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nolindnaidoo/ips-le/main/assets/icon.png" alt="IPs-LE logo" width="96" height="96"/>
+</p>
 <h1 align="center">IPs-LE</h1>
 
 <p align="center">
