@@ -71,8 +71,26 @@ crate/fixtures/documents/network.yaml:9:5  10.0.0.0/8  10.0.0.0/8  private
 crate/fixtures/documents/network.yaml:10:5  192.168.0.0/16  192.168.0.0/16  private
 crate/fixtures/documents/network.yaml:11:11  169.254.169.254  169.254.169.254  link-local
 crate/fixtures/documents/network.yaml:12:11  aa:bb:cc:dd:ee:ff  aa:bb:cc:dd:ee:ff  global
-8 addresses in 1 file
+crate/fixtures/documents/network.yaml:14:11  10.0.0.7  10.0.0.7  private
+crate/fixtures/documents/network.yaml:14:26  10.0.0.8  10.0.0.8  private
+10 addresses in 1 file
 ```
+
+## Install
+
+```bash
+cargo install ips-le
+```
+
+Or build it from this repository:
+
+```bash
+git clone https://github.com/nolindnaidoo/ips-le
+cd ips-le
+cargo install --path crate
+```
+
+That puts `ips-le` in `~/.cargo/bin`. Rust 1.88 or newer.
 
 ## Sixty seconds
 
@@ -248,6 +266,24 @@ if ips-le --strict --class loopback config/; then
 fi
 ```
 
+## Options
+
+Taken from `ips-le --help`, which is the authority.
+
+| Option | What it does |
+|---|---|
+| `--format <format>` | Force a format instead of inferring it from the file name; an unknown name still scans, it just reports no key paths |
+| `--kind <kind>` | Report only `ipv4`, `ipv6`, `cidr` or `mac`; repeatable |
+| `--class <class>` | Report only one class, e.g. `private` or `global`; repeatable |
+| `--strict` | Exit 2 if anything was refused or any file could not be read, rather than reporting it and carrying on |
+| `--stdin` | Read one document from stdin |
+| `--hidden` | Walk hidden files and directories too |
+| `--no-ignore` | Walk files that `.gitignore` excludes |
+
+A filter narrows what this tool claims, never what it declined to claim:
+a refusal survives `--kind` and `--class`, because the finding a filtered
+report would hide is the one most worth seeing.
+
 ## As an MCP server
 
 ```bash
@@ -264,76 +300,15 @@ Two tools, one envelope (`{ ok, data, diagnostics, meta }`):
 `2001:0db8::0001` and `2001:db8::1` out of a diff will usually call them
 two addresses; this is how it stops having to guess.
 
-## Install
-
-```bash
-cargo install ips-le
-```
-
-Or build it from this repository:
-
-```bash
-git clone https://github.com/nolindnaidoo/ips-le
-cd ips-le
-cargo install --path crate
-```
-
-That puts `ips-le` in `~/.cargo/bin`. Rust 1.88 or newer.
-
-## Layout
-
-This repository is **crate-only**: the Rust CLI and MCP server, and
-nothing else.
-
-```
-crate/
-├── src/
-│   ├── extract/    pure: the scanner, the policy layer, the seven key
-│   │               readers, positions. No filesystem, no network.
-│   ├── walk.rs     ignore-aware tree walking
-│   ├── scan.rs     one file end to end — the only path either surface calls
-│   ├── cli.rs      the terminal surface
-│   └── mcp/        the agent surface
-├── fixtures/       the corpus, embedded and run by `cargo test`
-└── tests/          contracts · scenarios · hazards · platform · fuzz ·
-                    budget · coverage_matrix
-```
-
-## Development
-
-```bash
-cd crate
-cargo fmt --all --check
-cargo clippy --all-targets -- -D warnings
-cargo test --locked
-```
-
-Those three are the definition of done and are exactly what CI runs.
-Four more suites are gated so a bare `cargo test` stays fast, and CI
-turns each of them on:
-
-| suite | what it is for | how to run it |
-|---|---|---|
-| `hazards` | a byte-order mark, a UTF-16 log, a FIFO, a symlink loop, a locked directory, a path over 260 characters | `cargo test --test hazards` |
-| `platform` | one path separator on every OS, case folding, reserved Windows names, CRLF, stdin, `TZ` | `cargo test --test platform` |
-| `fuzz` | generated input against the scanner's three splitting rules | `IPS_LE_FUZZ_SECONDS=60 cargo test --test fuzz` |
-| `budget` | a wall-clock ceiling and three linearity checks | `IPS_LE_BUDGET=1 cargo test --test budget` |
-| `coverage_matrix` | every kind, class, refusal reason and format reachable from a real fixture | `cargo test --test coverage_matrix -- --nocapture` |
-| `scenarios` | documents larger than an editor opens | `IPS_LE_SCENARIOS=1 cargo test --test scenarios` |
-
-The corpus ships inside the crate, so `cargo test` on an unpacked
-tarball runs every RFC 5952 case, one address per class, and every
-ambiguity expecting its refusal — the claims above are checkable rather
-than trusted.
-
 ## Documentation
 
-- [`crate/SPEC.md`](crate/SPEC.md) — the refusal table, the
-  classification table, the output schema, the non-goals.
-- [`crate/AGENTS.md`](crate/AGENTS.md) — how the code is written and
-  reviewed.
-- [`crate/README.md`](crate/README.md) — the crate's own front page.
-- [`CHANGELOG.md`](CHANGELOG.md) — what changed and when.
+| What | Where |
+|---|---|
+| What the tool is allowed to say — the refusal table, the classification table, the output schema, the non-goals | [`crate/SPEC.md`](crate/SPEC.md) |
+| How the code is written and held together — architecture, invariants, the gates, the layout | [`crate/AGENTS.md`](crate/AGENTS.md) |
+| The crate's own front page | [`crate/README.md`](crate/README.md) |
+| What changed | [CHANGELOG.md](CHANGELOG.md) · [`crate/CHANGELOG.md`](crate/CHANGELOG.md) |
+| The tool's page, and the other fifteen | [letools.dev/tools/ips-le](https://letools.dev/tools/ips-le) |
 
 ## More from the LE family
 
@@ -369,6 +344,7 @@ Each stands on its own: no shared crate, no published core. Where two of them
 agree, it is because the same answer was right twice.
 
 **Contact** — [nolindnaidoo.com](https://nolindnaidoo.com) · [GitHub](https://github.com/nolindnaidoo) · [LinkedIn](https://www.linkedin.com/in/nolindnaidoo/)
+
 ## Also by nolindnaidoo
 
 **Rust** — pixelcoords and pixelactions are one loop: pixelcoords answers

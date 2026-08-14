@@ -43,6 +43,12 @@ address, which is the whole reason that string is an SSRF bypass.
 ips-le .
 ```
 
+## Install
+
+```bash
+cargo install ips-le
+```
+
 ## Sixty seconds
 
 ```bash
@@ -117,7 +123,7 @@ $ ips-le --stdin <<< '010.1.1.1'
 Six reasons: `octal_hazard`, `ambiguous_version`, `integer_form`,
 `malformed_address`, `prefix_out_of_range`, `mac_ambiguous`. Each one is
 a place where two answers are equally defensible, and
-[SPEC.md](SPEC.md) says exactly when each fires.
+[SPEC.md](https://github.com/nolindnaidoo/ips-le/blob/main/crate/SPEC.md) says exactly when each fires.
 
 The two that matter most:
 
@@ -159,6 +165,24 @@ if ips-le --strict --class loopback config/; then
 fi
 ```
 
+## Options
+
+Taken from `ips-le --help`, which is the authority.
+
+| Option | What it does |
+|---|---|
+| `--format <format>` | Force a format instead of inferring it from the file name; an unknown name still scans, it just reports no key paths |
+| `--kind <kind>` | Report only `ipv4`, `ipv6`, `cidr` or `mac`; repeatable |
+| `--class <class>` | Report only one class, e.g. `private` or `global`; repeatable |
+| `--strict` | Exit 2 if anything was refused or any file could not be read, rather than reporting it and carrying on |
+| `--stdin` | Read one document from stdin |
+| `--hidden` | Walk hidden files and directories too |
+| `--no-ignore` | Walk files that `.gitignore` excludes |
+
+A filter narrows what this tool claims, never what it declined to claim:
+a refusal survives `--kind` and `--class`, because the finding a filtered
+report would hide is the one most worth seeing.
+
 ## As an MCP server
 
 ```bash
@@ -175,34 +199,18 @@ Two tools, one envelope (`{ ok, data, diagnostics, meta }`):
 `2001:0db8::0001` and `2001:db8::1` out of a diff will usually call them
 two addresses; this is how it stops having to guess.
 
-## Install
-
-```bash
-cargo install ips-le
-```
-
-## Verifying it
-
-The corpus ships with the crate, so the claims above are checkable
-rather than trusted:
-
-```bash
-cargo test          # the RFC 5952 cases, one address per class,
-                    # and every ambiguity, each expecting its refusal
-```
-
 ## Documentation
 
-- [SPEC.md](SPEC.md) — the refusal table, the classification table, the
+- [SPEC.md](https://github.com/nolindnaidoo/ips-le/blob/main/crate/SPEC.md) — the refusal table, the classification table, the
   output schema, the non-goals.
-- [CHANGELOG.md](CHANGELOG.md) — what changed and when.
+- [CHANGELOG.md](https://github.com/nolindnaidoo/ips-le/blob/main/crate/CHANGELOG.md) — what changed and when.
 - [AGENTS.md](https://github.com/nolindnaidoo/ips-le/blob/main/crate/AGENTS.md)
   — how the code is written and reviewed. Linked to the repository
   rather than relatively: it is deliberately excluded from the published
   package, so a relative link would be broken for anyone reading this on
   crates.io or from an unpacked tarball.
 
-MIT licensed.
+
 ## More from the LE family
 
 Sixteen single-purpose tools for the work in front of every model. Each ships
@@ -237,6 +245,7 @@ Each stands on its own: no shared crate, no published core. Where two of them
 agree, it is because the same answer was right twice.
 
 **Contact** — [nolindnaidoo.com](https://nolindnaidoo.com) · [GitHub](https://github.com/nolindnaidoo) · [LinkedIn](https://www.linkedin.com/in/nolindnaidoo/)
+
 ## Also by nolindnaidoo
 
 **Rust** — pixelcoords and pixelactions are one loop: pixelcoords answers
@@ -248,3 +257,6 @@ part of the LE family.
 - **[pixelactions](https://github.com/nolindnaidoo/pixelactions)** — Consume human-verified coordinates, perform the interaction, confirm it landed
   [pixelactions.dev](https://pixelactions.dev) · [crates.io](https://crates.io/crates/pixelactions) · [docs.rs](https://docs.rs/pixelactions)
 
+## License
+
+MIT — see [LICENSE](https://github.com/nolindnaidoo/ips-le/blob/main/LICENSE).
