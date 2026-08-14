@@ -1,0 +1,5 @@
+192.168.1.10 - - [12/Aug/2026:10:30:00 +0000] "GET /health HTTP/1.1" 200 512
+level=info ts=2026-08-12T10:30:01Z remote_addr=203.0.113.45 upstream=10.20.30.40 status=200 took=1.25ms
+{"ts":"2026-08-12T10:30:02Z","req":{"ip":"2001:0db8::0001","port":51234},"status":204}
+level=warn remote_addr=100.64.0.9 msg="cgnat client"
+Aug 12 10:30:03 gateway kernel: SRC=10.0.0.5 DST=8.8.8.8 MAC=aa:bb:cc:dd:ee:ff
