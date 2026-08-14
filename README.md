@@ -2,19 +2,20 @@
   <img src="https://raw.githubusercontent.com/nolindnaidoo/ips-le/main/assets/icon.png" alt="IPs-LE logo" width="96" height="96"/>
 </p>
 <h1 align="center">IPs-LE</h1>
-
 <p align="center">
   <b>Find every IP address, CIDR block and MAC address in a tree, normalized and classified</b><br/>
   <i>and named refusals where the text has more than one reading — never a guess</i>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/rustc-1.88+-93450a.svg" alt="MSRV: Rust 1.88+" />
-  <a href="https://github.com/nolindnaidoo/ips-le/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" />
+  <a href="https://crates.io/crates/ips-le">
+    <img src="https://img.shields.io/crates/v/ips-le?style=for-the-badge&label=Rust%20CLI&color=blue&logo=rust" alt="ips-le on crates.io" />
   </a>
   <a href="https://letools.dev/tools/ips-le">
-    <img src="https://img.shields.io/badge/LE%20Tools-letools.dev-blue.svg" alt="LE Tools" />
+    <img src="https://img.shields.io/badge/LE%20Tools-letools.dev-blue?style=for-the-badge" alt="LE Tools" />
+  </a>
+  <a href="https://github.com/nolindnaidoo/ips-le/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="MIT licensed" />
   </a>
 </p>
 
@@ -23,6 +24,10 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/nolindnaidoo/ips-le/main/assets/demo.gif" alt="IPs-LE demo — the real binary, recorded by assets/demo.tape" style="max-width: 100%; height: auto;" />
 </p>
+
+> **Useful?** A star is how other developers find it —
+> [★ GitHub](https://github.com/nolindnaidoo/ips-le) ·
+> [letools.dev/tools/ips-le](https://letools.dev/tools/ips-le)
 
 Somebody has to check the firewall allow-list against the change
 request, the connection string against the network diagram, the fetch

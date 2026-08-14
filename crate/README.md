@@ -9,6 +9,12 @@
   <a href="https://crates.io/crates/ips-le">
     <img src="https://img.shields.io/crates/v/ips-le.svg" alt="ips-le on crates.io" />
   </a>
+  <a href="https://crates.io/crates/ips-le">
+    <img src="https://img.shields.io/crates/d/ips-le.svg" alt="crates.io downloads" />
+  </a>
+  <a href="https://github.com/nolindnaidoo/ips-le/actions/workflows/ci-crate.yml">
+    <img src="https://github.com/nolindnaidoo/ips-le/actions/workflows/ci-crate.yml/badge.svg" alt="Build Status" />
+  </a>
   <img src="https://img.shields.io/badge/rustc-1.88+-93450a.svg" alt="MSRV: Rust 1.88+" />
   <a href="https://github.com/nolindnaidoo/ips-le/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" />
@@ -17,6 +23,10 @@
     <img src="https://img.shields.io/badge/web-letools.dev-00A0FF.svg" alt="letools.dev" />
   </a>
 </p>
+
+> **Useful?** A star is how other developers find it —
+> [★ GitHub](https://github.com/nolindnaidoo/ips-le) ·
+> [letools.dev/tools/ips-le](https://letools.dev/tools/ips-le)
 
 Somebody has to check the firewall allow-list against the change
 request, the connection string against the network diagram, the fetch
