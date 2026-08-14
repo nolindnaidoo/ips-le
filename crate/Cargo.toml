@@ -25,11 +25,12 @@ categories = [
 # so the RFC 5952 and refusal claims in the README are checkable by
 # whoever installed it rather than taken on trust.
 #
-# Excluded: AGENTS.md is how this repo is worked on, not how the tool is
-# used. rust-toolchain.toml is a convenience for contributors to *this*
-# checkout; shipped, it would pin the toolchain of anyone who unpacks or
-# vendors the crate, which is not this crate's business.
-exclude = ["AGENTS.md", "rust-toolchain.toml"]
+# Excluded: AGENTS.md and CLAUDE.md are how this repo is worked on, not
+# how the tool is used. rust-toolchain.toml is a convenience for
+# contributors to *this* checkout; shipped, it would pin the toolchain of
+# anyone who unpacks or vendors the crate, which is not this crate's
+# business.
+exclude = ["AGENTS.md", "CLAUDE.md", "rust-toolchain.toml"]
 
 [dependencies]
 # The report *is* the product on both surfaces — stdout is JSON Lines and
