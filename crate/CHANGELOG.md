@@ -59,6 +59,12 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **One sentence describes this crate everywhere it is described.** The
+  `description` in `Cargo.toml`, the line under the title in
+  `README.md`, and the entry on letools.dev had drifted into three
+  paraphrases, so the crate a reader met on crates.io was not obviously
+  the one they met on the site. Nothing about the tool moved.
+
 - `crate/SPEC.md` states the comment rule per dialect, and the corpus
   pins it: `network.yaml`, `network.toml`, `network.ini` and
   `network.env` each carry a trailing comment holding an address, so a
@@ -173,3 +179,5 @@ job:
 
 No DNS resolution, no geolocation, no network access of any kind, no
 verdict, no rewriting. See [SPEC.md](SPEC.md), "Non-goals".
+
+[0.1.0]: https://crates.io/crates/ips-le/0.1.0

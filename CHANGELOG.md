@@ -7,6 +7,36 @@ server in detail and is the one a consumer of the crate reads.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+`crate/Cargo.toml` carries 0.1.1; what changed in the crate is in
+[`crate/CHANGELOG.md`](crate/CHANGELOG.md). This section is the
+repository around it, which had been moving without a record.
+
+### Added
+
+- **A terminal demo** at [`assets/demo.gif`](assets/demo.gif), driving
+  the real binary over the files in [`assets/demo/`](assets/demo/).
+  [`assets/demo.tape`](assets/demo.tape) is the `vhs` script that
+  produced it, so `cd assets && vhs demo.tape` reproduces the recording
+  rather than leaving an artifact nobody can regenerate. Both sit above
+  `crate/`, where `cargo package` cannot reach them.
+
+### Changed
+
+- **New icon artwork.** All sixteen tools were redrawn in one style, so
+  the family reads as one set wherever the cards sit side by side. The
+  framing is unchanged — the drawing fills 65.8% of an 800×800 canvas
+  and every smaller size is derived from that one file rather than drawn
+  again.
+
+### Fixed
+
+- **The README's images resolve away from GitHub.** They were repository
+  paths, which crates.io and every other renderer resolves against its
+  own origin, so the demo and the icon were broken everywhere this file
+  is read that is not this repository. They are absolute URLs now.
+
 ## [0.1.0] — 2026-08-12
 
 First release. Core functionality, not a hardened 1.0 — the known limits
@@ -83,3 +113,5 @@ be discovered. `cargo install ips-le`, or from this repository with
   produced, and carries a **Notes** section recording where a quadratic
   hides in a UTF-16 column — including that the same shape is still
   present in a sibling crate.
+
+[0.1.0]: https://crates.io/crates/ips-le/0.1.0
