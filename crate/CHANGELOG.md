@@ -5,7 +5,7 @@ The Rust CLI and MCP server for ips-le.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.1] - 2026-08-14
 
 ### Fixed
 
@@ -181,3 +181,4 @@ No DNS resolution, no geolocation, no network access of any kind, no
 verdict, no rewriting. See [SPEC.md](SPEC.md), "Non-goals".
 
 [0.1.0]: https://crates.io/crates/ips-le/0.1.0
+[0.1.1]: https://crates.io/crates/ips-le/0.1.1

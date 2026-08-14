@@ -7,11 +7,11 @@ server in detail and is the one a consumer of the crate reads.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.1] - 2026-08-14
 
-`crate/Cargo.toml` carries 0.1.1; what changed in the crate is in
+What changed in the crate is in
 [`crate/CHANGELOG.md`](crate/CHANGELOG.md). This section is the
-repository around it, which had been moving without a record.
+repository around it.
 
 ### Added
 
@@ -115,3 +115,4 @@ be discovered. `cargo install ips-le`, or from this repository with
   present in a sibling crate.
 
 [0.1.0]: https://crates.io/crates/ips-le/0.1.0
+[0.1.1]: https://crates.io/crates/ips-le/0.1.1
