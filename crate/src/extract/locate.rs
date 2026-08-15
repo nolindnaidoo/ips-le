@@ -72,7 +72,8 @@ fn keys(text: &str, format_key: &str) -> Vec<KeySpan> {
         "toml" => toml::keys(text),
         "ini" => ini::keys(text),
         "env" => dotenv::keys(text),
-        "csv" => csv::keys(text),
+        "csv" => csv::keys(text, csv::COMMA),
+        "tsv" => csv::keys(text, csv::TAB),
         "log" => log::keys(text),
         _ => Vec::new(),
     }

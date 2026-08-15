@@ -414,3 +414,23 @@ fn the_mcp_surface_answers_what_the_cli_answers() {
         "the two surfaces disagree"
     );
 }
+
+/// **A coordinate is a locator, so a wrong one is worse than none.**
+/// `.tsv` named the comma reader, so a tab row was a single cell and
+/// every address on it reported `[row][0]` — three different addresses
+/// on one line, all claiming the same column.
+#[test]
+fn a_tab_separated_row_is_keyed_column_by_column() {
+    let tree = Tree::new("tsv-coords");
+    let file = tree.write("wide.tsv", "host\tmgmt\tgw\nweb01\t10.0.0.1\t10.0.0.254\n");
+    let run = run(&[&file.to_string_lossy()]);
+    let report = &reports(&run)[0];
+    assert_eq!(report["format"], "tsv", "{}", run.stdout);
+    let keys: Vec<&str> = report["addresses"]
+        .as_array()
+        .expect("addresses")
+        .iter()
+        .map(|a| a["key"].as_str().expect("a key"))
+        .collect();
+    assert_eq!(keys, ["[1][1]", "[1][2]"]);
+}

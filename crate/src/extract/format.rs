@@ -30,7 +30,7 @@ const ALIASES: [(&str, &str); 20] = [
     ("env", "env"),
     ("dotenv", "env"),
     ("csv", "csv"),
-    ("tsv", "csv"),
+    ("tsv", "tsv"),
     ("log", "log"),
     ("logs", "log"),
     ("ndjson", "log"),
@@ -43,8 +43,8 @@ const ALIASES: [(&str, &str); 20] = [
 /// The formats a caller can name, for the tool schema's enum and for
 /// `--format`. Held equal to the alias table by a test, so a format can
 /// never be offered and then not resolve.
-pub(crate) const SUPPORTED_FORMATS: [&str; 7] =
-    ["json", "yaml", "toml", "ini", "env", "csv", "log"];
+pub(crate) const SUPPORTED_FORMATS: [&str; 8] =
+    ["json", "yaml", "toml", "ini", "env", "csv", "tsv", "log"];
 
 /// What the engine uses when it recognises nothing: the byte scan with
 /// no key paths.
@@ -135,7 +135,7 @@ mod tests {
         for (alias, expected) in [
             ("jsonc", "json"),
             ("yml", "yaml"),
-            ("tsv", "csv"),
+            ("tsv", "tsv"),
             ("cfg", "ini"),
             ("conf", "ini"),
             ("dotenv", "env"),

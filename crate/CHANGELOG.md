@@ -5,6 +5,33 @@ The Rust CLI and MCP server for ips-le.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-08-15
+
+### Fixed
+
+- **A `.tsv` row is keyed cell by cell.** `.tsv` named the comma reader,
+  so a tab row was one cell and every address on it reported
+  `[row][0]` — three different addresses on one line all claiming the
+  same column. A coordinate is a locator a reader acts on, so a
+  plausible wrong one is worse than none. Checked against Python's
+  `csv.reader(delimiter='\t')`.
+
+### Added
+
+- `tsv` is a format in its own right: it resolves, names itself in a
+  report, and is offered in the MCP schema.
+
+- A contract test over the built binary, observed failing before the
+  fix, pinning that each cell is keyed by its own column.
+
+### Unchanged, deliberately
+
+- `.conf` and `.cfg` keep the INI reader. Two sibling crates dropped
+  them because their INI readers found keys in free-form prose; this
+  one does not — the same sentence gives the same address and the same
+  absent key whether it is read as `ini` or as text, and that was
+  measured before deciding.
+
 ## [0.1.2] - 2026-08-15
 
 ### Fixed
@@ -195,3 +222,4 @@ verdict, no rewriting. See [SPEC.md](SPEC.md), "Non-goals".
 [0.1.0]: https://crates.io/crates/ips-le/0.1.0
 [0.1.1]: https://crates.io/crates/ips-le/0.1.1
 [0.1.2]: https://crates.io/crates/ips-le/0.1.2
+[0.2.0]: https://crates.io/crates/ips-le/0.2.0

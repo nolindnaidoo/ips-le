@@ -13,13 +13,20 @@
 
 use super::{KeySpan, lines};
 
-pub(crate) fn keys(text: &str) -> Vec<KeySpan> {
+/// The byte between cells. Tab-separated files are the same grammar
+/// with a different one, and reading a tab row on commas made the whole
+/// row one cell — so every address in it claimed column `[row][0]`, a
+/// coordinate that is a locator a reader acts on.
+pub(crate) const COMMA: char = ',';
+pub(crate) const TAB: char = '\t';
+
+pub(crate) fn keys(text: &str, delimiter: char) -> Vec<KeySpan> {
     let mut spans = Vec::new();
     for (row, (offset, line)) in lines(text).enumerate() {
         if line.trim().is_empty() {
             continue;
         }
-        for (column, cell) in cells(line).into_iter().enumerate() {
+        for (column, cell) in cells(line, delimiter).into_iter().enumerate() {
             spans.push(KeySpan {
                 start: offset + cell.start,
                 end: offset + cell.end,
@@ -40,7 +47,7 @@ struct Cell {
 /// A quoted cell may hold a comma, which is the entire reason quoting
 /// exists in these files — and an address list in one cell
 /// (`"10.0.0.1,10.0.0.2"`) is a shape that actually occurs.
-fn cells(line: &str) -> Vec<Cell> {
+fn cells(line: &str, delimiter: char) -> Vec<Cell> {
     let mut start = 0;
     let mut quoted = false;
     let mut boundaries = Vec::new();
@@ -49,7 +56,7 @@ fn cells(line: &str) -> Vec<Cell> {
             quoted = !quoted;
             continue;
         }
-        if character == ',' && !quoted {
+        if character == delimiter && !quoted {
             boundaries.push(Cell { start, end: index });
             start = index + 1;
         }
@@ -67,7 +74,7 @@ mod tests {
 
     fn at(text: &str, needle: &str) -> Option<String> {
         let at = text.find(needle).expect("the needle is in the text");
-        keys(text)
+        keys(text, COMMA)
             .into_iter()
             .find(|span| span.start <= at && at < span.end)
             .map(|span| span.path)
@@ -99,8 +106,23 @@ mod tests {
         assert_eq!(at(text, "10.0.0.1").as_deref(), Some("[1][0]"));
     }
 
+    /// The delimiter is the whole fix. Read on commas, a tab row is one
+    /// cell, so every address in it claimed `[row][0]` — three different
+    /// addresses on one line, all reporting the same coordinate.
+    #[test]
+    fn a_tab_row_is_cells_under_tab_and_one_cell_under_comma() {
+        let text = "host\tmgmt\tgw\nweb01\t10.0.0.1\t10.0.0.254\n";
+        let tabbed: Vec<String> = keys(text, TAB).iter().map(|s| s.path.clone()).collect();
+        assert_eq!(
+            tabbed,
+            ["[0][0]", "[0][1]", "[0][2]", "[1][0]", "[1][1]", "[1][2]"]
+        );
+        let comma: Vec<String> = keys(text, COMMA).iter().map(|s| s.path.clone()).collect();
+        assert_eq!(comma, ["[0][0]", "[1][0]"]);
+    }
+
     #[test]
     fn a_blank_line_has_no_cells() {
-        assert!(keys("\n   \n").is_empty());
+        assert!(keys("\n   \n", COMMA).is_empty());
     }
 }

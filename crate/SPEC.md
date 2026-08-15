@@ -112,7 +112,7 @@ Inside `extract/`:
 
 ```
 scanner.rs   bytes  → candidate runs      (format-independent)
-<format>.rs  bytes  → key spans           (json yaml toml ini env csv log)
+<format>.rs  bytes  → key spans      (json yaml toml ini env csv tsv log)
 policy.rs    run    → address or refusal  (the decision layer)
 locate.rs    joins the three
 ```
@@ -217,7 +217,7 @@ file that could not be read, into a 2.
 
 ## Formats
 
-`json` `yaml` `toml` `ini` `env` `csv` `log`, plus the fallback
+`json` `yaml` `toml` `ini` `env` `csv` `tsv` `log`, plus the fallback
 `unknown`. The format decides **only** whether a finding carries a key
 path.
 
@@ -232,6 +232,10 @@ path.
 - **ini** — `[section]` and `key = value` / `key: value`.
 - **env** — `KEY=value`, `export` stripped.
 - **csv** — every row is data; the key is a coordinate, `[row][column]`.
+- **tsv** — the same reader with a tab between cells. Its own name
+  rather than an alias for `csv`: read on commas, a tab row is one cell,
+  so every address in it claimed `[row][0]` — a coordinate that reads as
+  a fact and was not one.
 - **log** — logfmt `key=value` pairs and JSON-per-line. An Apache or
   syslog line gets no key path, and that is the honest answer: the
   address is in position one of a format nobody declared.
