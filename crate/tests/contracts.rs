@@ -318,6 +318,36 @@ fn a_filter_narrows_the_answer_and_keeps_the_refusals() {
         .filter_map(|found| found["text"].as_str().map(str::to_string))
         .collect();
     assert_eq!(texts, ["8.8.8.8", "010.1.1.1", "aa:bb:cc:dd:ee:ff"]);
+
+    // **`--kind` as well as `--class`.** This test named the property
+    // and then exercised only the half that already held: every refusal
+    // carries `class: null`, so `--class` could never drop one. `--kind`
+    // dropped every refusal that named a kind, and the four that do are
+    // the common ones.
+    //
+    // `010.1.1.1` is refused `octal_hazard` and carries `kind: "ipv4"`,
+    // so `--kind ipv6` used to drop it. The MAC beside it is a finding
+    // of kind `mac` rather than a refusal, and is correctly gone.
+    let run = pipe(&["--stdin", "--kind", "ipv6"], document);
+    let refused: Vec<String> = findings(&run)
+        .iter()
+        .filter_map(|found| found["refused"]["reason"].as_str().map(str::to_string))
+        .collect();
+    assert_eq!(refused, ["octal_hazard"], "{}", run.stdout);
+}
+
+/// **A filter may not turn a red build green.** `--strict` is computed
+/// from what survives the filter, so a refusal a filter removed is a
+/// document nobody could read passing as clean.
+#[test]
+fn a_filter_cannot_make_strict_pass_a_refusal() {
+    let document = "10.0.0.1\n10.0.0.0/33\n";
+    assert_eq!(pipe(&["--stdin", "--strict"], document).code, 2);
+    assert_eq!(
+        pipe(&["--stdin", "--strict", "--kind", "ipv4"], document).code,
+        2,
+        "a --kind filter hid the refusal that --strict exists to catch"
+    );
 }
 
 #[test]

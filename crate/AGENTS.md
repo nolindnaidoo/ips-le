@@ -60,9 +60,18 @@ locate.rs    joins the three
     paths as report lines. A surface that assembles this itself grows
     its own idea of what a binary file is.
   - `Found::survives` — the kind/class filter, including the rule that
-    **a refusal survives every filter it cannot be judged by**. It lives
-    on the finding rather than on either surface's options because both
-    filter, and a second copy is a second chance to drop a refusal.
+    **a refusal survives every filter**, full stop. It lives on the
+    finding rather than on either surface's options because both filter,
+    and a second copy is a second chance to drop a refusal.
+
+    This used to read "every filter it cannot be judged by", and the
+    code implemented that reading: `--class` kept every refusal, while
+    `--kind` kept only the ones with no kind. SPEC.md, the README,
+    `--help` and both MCP schemas all said "survives `--kind` and
+    `--class`", so this line was the outlier and it is the one that was
+    wrong. The consequence was not cosmetic — `--strict` is computed
+    from what survives, so `--kind ipv4` turned a red build green over a
+    document holding a refusal.
   - `policy::mac_octets` — the MAC shape *and* its value in one answer,
     so `scanner.rs`'s decision to hold a run together and `policy.rs`'s
     decision to read it cannot disagree.

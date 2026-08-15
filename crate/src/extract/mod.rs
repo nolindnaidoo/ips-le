@@ -82,13 +82,27 @@ impl Found {
     /// both surfaces filter — the CLI through `ScanOptions` and the
     /// `extract_ips` tool on its own arguments — and two copies of this
     /// rule would be two chances to lose a refusal on one of them.
+    /// **A refusal survives every filter.** SPEC.md, the README, `--help`
+    /// and both MCP tool schemas all say so in those words, and the
+    /// reason is the exit code: `--strict` is computed from what
+    /// survives, so a refusal a filter removed is a build that goes
+    /// green over a document nobody could read. `ips-le --strict` on a
+    /// file holding `10.0.0.0/33` exits 2; adding `--kind ipv4` used to
+    /// make the same file exit 0.
+    ///
+    /// The two halves disagreed, which is how it hid: `class_ok` kept
+    /// every refusal, `kind_ok` kept only those with no kind — and a
+    /// refusal that named one (`octal_hazard`, `prefix_out_of_range`,
+    /// `malformed_address`, `integer_form`) was dropped. The contract
+    /// test written to guard this only ever passed `--class`, which is
+    /// the branch that was already right.
     pub(crate) fn survives(&self, kinds: &[Kind], classes: &[Class]) -> bool {
-        let kind_ok = kinds.is_empty()
-            || self.kind.is_some_and(|kind| kinds.contains(&kind))
-            || self.is_refusal() && self.kind.is_none();
-        let class_ok = classes.is_empty()
-            || self.class.is_some_and(|class| classes.contains(&class))
-            || self.is_refusal();
+        if self.is_refusal() {
+            return true;
+        }
+        let kind_ok = kinds.is_empty() || self.kind.is_some_and(|kind| kinds.contains(&kind));
+        let class_ok =
+            classes.is_empty() || self.class.is_some_and(|class| classes.contains(&class));
         kind_ok && class_ok
     }
 }

@@ -5,6 +5,29 @@ The Rust CLI and MCP server for ips-le.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-08-15
+
+### Fixed
+
+- **A refusal survives `--kind`, so a filter can no longer turn a red
+  build green.** `--strict` is computed from what survives the filter,
+  and `--kind` dropped every refusal that named a kind — the four common
+  ones do. `ips-le --strict` over a file holding `10.0.0.0/33` exits 2;
+  `ips-le --strict --kind ipv4` over the same file exited **0**. The
+  refusals were absent from the JSON too, with `summary.refused` reading
+  0, so nothing downstream could see them either.
+
+  The two halves of `survives` disagreed with each other, which is how
+  it hid: `class_ok` kept every refusal unconditionally, `kind_ok` kept
+  only those with no kind. `AGENTS.md` described the narrower rule and
+  is corrected here; SPEC.md, the README, `--help` and both MCP schemas
+  already said "a refusal survives `--kind` and `--class`".
+
+  The contract test written to guard exactly this claim only ever passed
+  `--class` — the branch that was already right, and safe by accident
+  because every refusal carries `class: null`. It now passes both, and a
+  second test pins the exit code directly.
+
 ## [0.2.0] - 2026-08-15
 
 ### Fixed
@@ -223,3 +246,4 @@ verdict, no rewriting. See [SPEC.md](SPEC.md), "Non-goals".
 [0.1.1]: https://crates.io/crates/ips-le/0.1.1
 [0.1.2]: https://crates.io/crates/ips-le/0.1.2
 [0.2.0]: https://crates.io/crates/ips-le/0.2.0
+[0.2.1]: https://crates.io/crates/ips-le/0.2.1
