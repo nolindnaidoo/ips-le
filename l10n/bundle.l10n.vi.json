@@ -1,0 +1,17 @@
+{
+	"Could not be read ({0})": "Không đọc được ({0})",
+	"Could not copy to clipboard": "Không thể sao chép vào khay nhớ tạm",
+	"Could not open results": "Không thể mở kết quả",
+	"File is empty": "Tệp trống",
+	"IPs-LE report": "Báo cáo IPs-LE",
+	"Large file detected ({0} bytes). Extraction may take longer.": "Phát hiện tệp lớn ({0} byte). Việc trích xuất có thể mất nhiều thời gian hơn.",
+	"No active editor": "Không có trình soạn thảo nào đang mở",
+	"No addresses found.": "Không tìm thấy địa chỉ nào.",
+	"Run IPs-LE: Extract Addresses": "Chạy IPs-LE: Trích xuất địa chỉ",
+	"This JSON does not parse, so no key paths are reported": "JSON này không phân tích được, nên không báo cáo đường dẫn khóa",
+	"key": "khóa",
+	"{0} address(es)": "{0} địa chỉ",
+	"{0} address(es), {1} could not be read": "{0} địa chỉ, {1} không đọc được",
+	"{0} addresses": "tổng cộng {0} địa chỉ",
+	"{0} run(s) could not be read as an address; the report gives each reason": "{0} giá trị không đọc được như một địa chỉ; báo cáo nêu lý do của từng giá trị"
+}

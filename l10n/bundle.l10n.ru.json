@@ -1,0 +1,17 @@
+{
+	"Could not be read ({0})": "Не удалось прочитать ({0})",
+	"Could not copy to clipboard": "Не удалось скопировать в буфер обмена",
+	"Could not open results": "Не удалось открыть результаты",
+	"File is empty": "Файл пуст",
+	"IPs-LE report": "Отчёт IPs-LE",
+	"Large file detected ({0} bytes). Extraction may take longer.": "Обнаружен большой файл ({0} байт). Извлечение может занять больше времени.",
+	"No active editor": "Нет активного редактора",
+	"No addresses found.": "Адреса не найдены.",
+	"Run IPs-LE: Extract Addresses": "Запустить IPs-LE: извлечь адреса",
+	"This JSON does not parse, so no key paths are reported": "Этот JSON не разбирается, поэтому пути ключей не сообщаются",
+	"key": "ключ",
+	"{0} address(es)": "адресов: {0}",
+	"{0} address(es), {1} could not be read": "адресов: {0}, не прочитано: {1}",
+	"{0} addresses": "всего адресов: {0}",
+	"{0} run(s) could not be read as an address; the report gives each reason": "не удалось прочитать как адрес значений: {0}; в отчёте указана причина для каждого"
+}

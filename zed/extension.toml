@@ -1,0 +1,14 @@
+id = "ips-le"
+name = "IPs-LE"
+description = "Extract every IP address, CIDR block and MAC, normalized and classified by scope."
+version = "1.0.0"
+schema_version = 1
+authors = ["nolindnaidoo"]
+repository = "https://github.com/nolindnaidoo/ips-le"
+
+# Zed's extension API offers languages, debuggers, themes, snippets, slash
+# commands and context servers — it has no way to read the active buffer or
+# register a command, which is what the VS Code extension is built on. A
+# context server is the surface that fits: the same engine, reached from the
+# agent panel instead of the command palette.
+[context_servers.ips-le]

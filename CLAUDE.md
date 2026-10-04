@@ -1,77 +1,93 @@
 # CLAUDE.md
 
-[AGENTS.md](AGENTS.md) is the technical source of truth for this repo, and it
-routes to [`crate/AGENTS.md`](crate/AGENTS.md) — the engineering standard the
-code is held to: control flow, error handling, layout, the decisions already
-made, the definition of done. Read it before writing code.
+[AGENTS.md](AGENTS.md) is the technical source of truth for this repo: the
+engineering standard the code is held to — control flow, error handling,
+immutability, structure — plus this repo's architecture, invariants, toolchain
+and release. Read it before writing code. README.md is user-facing and partly
+generated.
 
-This repository is **crate-only**: the Rust CLI and MCP server in `crate/` and
-nothing else. Read [`crate/CLAUDE.md`](crate/CLAUDE.md) and
-[`crate/AGENTS.md`](crate/AGENTS.md) for that side; `crate/SPEC.md` defines the
-product behaviour. README.md is user-facing.
+The repo also hosts the Rust CLI in `crate/` — read `crate/CLAUDE.md` and
+`crate/AGENTS.md` for that side; the shared corpus is `crate/fixtures/`.
 
 ## Where to look
 
 | Question | File |
 |---|---|
-| How should this code be written? | [`crate/AGENTS.md`](crate/AGENTS.md) — the standard, the architecture, the invariants |
-| What is this tool allowed to say? | [`crate/SPEC.md`](crate/SPEC.md) — refusals, classes, schema, non-goals |
-| What does the user see? | [README.md](README.md) |
-| What changed? | [CHANGELOG.md](CHANGELOG.md) · [`crate/CHANGELOG.md`](crate/CHANGELOG.md) |
+| How should this code be written? | [AGENTS.md](AGENTS.md) — the standard, plus this repo's architecture and invariants |
+| What does the user see? | [README.md](README.md) — Testing and Performance are generated |
+| What changed? | [CHANGELOG.md](CHANGELOG.md) |
 
 ## Gates
 
 ```bash
-cd crate && cargo fmt --all --check && cargo clippy --all-targets -- -D warnings && cargo test --locked
+bun run typecheck && bun run lint && bun run test
 ```
 
-Before a release, also run the gated suites — they are gated so a bare
-`cargo test` stays fast, not because they are optional:
-
-```bash
-cargo test --test hazards && cargo test --test platform
-IPS_LE_FUZZ_SECONDS=60 cargo test --test fuzz -- --nocapture
-IPS_LE_BUDGET=1 cargo test --test budget -- --test-threads=1 --nocapture
-cargo test --test coverage_matrix -- --nocapture
-IPS_LE_SCENARIOS=1 cargo test --test scenarios
-```
+Before a release, also `bun run test:integration`, `bun run package`, and
+`bun run test:e2e-vsix` — the last is the only test that exercises the
+artifact users actually install.
 
 ## Things that will bite you
 
-- **Refusals are the product, not an error path.** Turning one into an answer
-  is a behaviour change needing a CHANGELOG entry and a very good reason. No
-  filter may hide a refusal, and `010.1.1.1` is never resolved on either
-  stream — a contract test and the fuzz suite both grep for the readings it
-  must not contain.
-- **A decoded form appears only next to its flag.** `2130706433` carries
-  `127.0.0.1` inside the `integer_form` refusal message and nowhere else.
-- **The scan runs over the bytes, whatever the format.** The format parse
-  contributes only the key path. Do not "fix" this into a parse-tree walk; it
-  would miss every address inside a connection string and every address in a
-  log line.
-- **New noise belongs in the scanner, not the policy layer.** If
-  `2026:10:30:00` reaches `policy::read`, the honest answer is
-  `malformed_address`, and a refusal on every line of every log makes the
-  vocabulary worthless. Check any new "we should refuse X" instinct against a
-  scan of an address-free codebase first.
-- **No network, ever**, and no inline `#[allow(...)]` — CI fails the build on
-  the second and there is no way to add the first.
-- **Report paths use `/` on every platform.** `crate/tests/platform.rs` pins
-  it; a sibling shipped `\` on Windows for a whole release.
-- **A long-line performance case must be non-ASCII to mean anything.** The
-  position index takes an arithmetic fast path on ASCII, so an ASCII long line
-  measures nothing. See `crate/SPEC.md`, "Notes".
-- **CI narrows itself on a docs-only push.** `ci-crate.yml` fires on `*.md` and
-  the agent instruction files — it has to, because the `policy` job greps them,
-  and the filter used to admit only `crate/**` so that gate could run only when
-  the files it guards had *not* been touched. On a docs-only push `policy` and
-  `commits` run and every Rust job skips. Anything unrecognised, and an
-  unreadable diff, counts as code and runs everything.
-- **Coverage floors are a backstop, not a target** — well below where the code
-  actually is, and never raised to track it: 75% of
-  lines per module in `crate/src/extract/`.
-- **Every claim must be provable.** Nothing goes in a README or a help text
-  unless the code backs it. That governs **behaviour and numbers**, not
-  **availability**: an install line for a publish you are about to make is
-  **staged, not forbidden**. Write it, and let the release commit be what
-  makes it true.
+- **Two README sections are generated.** Testing and Performance sit between
+  `<!-- coverage:start -->` / `<!-- performance:start -->` markers and come
+  from `scripts/coverage-readme.js` and `scripts/perf-readme.js`. Edit the
+  code and regenerate; do not type numbers in by hand. CI fails if the coverage
+  figures no longer match a real run.
+- **Refusals are the product, not an error path.** No filter may hide one,
+  `010.1.1.1` is never resolved to either reading, and a decoded form —
+  `127.0.0.1` for `2130706433` — appears only inside the refusal's detail.
+- **The scan runs over the whole document, whatever the format.** The format
+  contributes only key paths. A parse-tree walk would miss every address
+  inside a connection string and every address in a log line.
+- **Every claim must be provable.** No feature, metric or format goes in a
+  README, the manifest, or help text unless the code backs it. That governs
+  **behaviour and numbers** — not **availability**. Whether something is
+  published, listed or installable is a fact about a registry at a moment in
+  time, and it is false right up until you make it true. Copy for a release you
+  are about to make is **staged, never forbidden**: write it, and let the
+  release commit be what makes it true.
+- **This repo is one of the family's extension repos.** The shared config
+  files, scripts and workflows are byte-identical across them, and
+  `letools-site/scripts/check-fleet.ts` is what holds them there rather than
+  memory: run `bun run check:fleet ../` from a checkout of the site with the
+  others beside it, or dispatch its **Fleet** workflow. It names the file and the
+  repos that drifted, so a missed copy is a report rather than something you
+  find months later. Anything under `crate/` is outside the check on purpose —
+  the crates stand on their own.
+- **The extraction is shared with the Rust CLI**, and the corpus under
+  `crate/` is the contract. Changing extraction behaviour means changing
+  `crate/src/extract/` and `src/extract/` together, updating the corpus, and
+  running `bun scripts/check-extraction-parity.ts` and the differential. CI
+  fails when either side drifts.
+- **What the contract holds equal is the shared `extract_ips` MCP tool**, which
+  both servers offer and must answer identically; a difference there is a bug.
+  **The surfaces are meant to differ.** This one is IDE-first — the active
+  document, and a report a person reads. The CLI is terminal-first: a tree
+  walk, exit codes, `--strict` and one JSON line per file, none of which has an
+  editor equivalent. That is not drift, and nothing holds them equal — see
+  `crate/SPEC.md`.
+- **std and jsonc-parser are transcribed, not approximated.** Address
+  parsing and the RFC 5952 form are Rust std's (`src/extract/net.ts`); a
+  broken JSON document is reported in jsonc-parser 0.33.2's words
+  (`src/extract/jsonc.ts`). `URL`, `node:net` and `JSON.parse` all answer
+  differently, and the differential will say so.
+- **Offsets are UTF-16, the crate's are bytes.** Every byte the crate compares
+  is ASCII, so the logic ports unchanged — except YAML indentation, which is
+  compared in UTF-8 bytes across lines. A test pins it.
+- **Localization is two mechanisms, and they fail separately.** `src/i18n/package.nls.*.json`
+  covers the manifest; `l10n/bundle.l10n.*.json` covers runtime strings through
+  `vscode.l10n.t()`. Twelve locales each, held in exact key parity by the
+  integration test. Never call `l10n.t()` at module scope, never compare a
+  translated label against an English literal, and use positional `{0}`
+  placeholders rather than template literals.
+- **CI narrows itself on a docs-only push.** A change touching only `*.md` and
+  `LICENSE` runs the Linux leg alone and skips the Zed build; `ci-crate.yml`
+  runs its `policy` gate with every Rust job skipped. Nothing that covers the
+  change is skipped — the README coverage gate, the integration suite and the
+  installed-VSIX end-to-end are Linux-only anyway. Anything unrecognised, and an
+  unreadable diff, counts as code and runs everything. A release commit always
+  touches `package.json`, so a release still sees the full three-OS matrix.
+- **Coverage floors are a backstop, not a target.** They sit well below where
+  the code actually is, and they are not raised to track it — a floor that
+  follows real coverage becomes a tax on writing the next module.
