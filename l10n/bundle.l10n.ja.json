@@ -1,0 +1,17 @@
+{
+	"Could not be read ({0})": "読み取れなかった値 ({0})",
+	"Could not copy to clipboard": "クリップボードにコピーできませんでした",
+	"Could not open results": "結果を開けませんでした",
+	"File is empty": "ファイルが空です",
+	"IPs-LE report": "IPs-LE レポート",
+	"Large file detected ({0} bytes). Extraction may take longer.": "大きなファイルを検出しました ({0} バイト)。抽出に時間がかかる場合があります。",
+	"No active editor": "アクティブなエディターがありません",
+	"No addresses found.": "アドレスは見つかりませんでした。",
+	"Run IPs-LE: Extract Addresses": "IPs-LE を実行: アドレスを抽出",
+	"This JSON does not parse, so no key paths are reported": "この JSON は解析できないため、キーパスは報告されません",
+	"key": "キー",
+	"{0} address(es)": "{0} 個のアドレス",
+	"{0} address(es), {1} could not be read": "{0} 個のアドレス、{1} 個は読み取れず",
+	"{0} addresses": "{0} 個のアドレスを含む",
+	"{0} run(s) could not be read as an address; the report gives each reason": "{0} 個の値をアドレスとして読み取れませんでした。レポートにそれぞれの理由があります"
+}

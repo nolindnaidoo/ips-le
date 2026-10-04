@@ -1,27 +1,24 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/nolindnaidoo/ips-le/main/assets/icon.png" alt="IPs-LE logo" width="96" height="96"/>
+  <img src="src/assets/images/icon.png" alt="IPs-LE Logo" width="96" height="96"/>
 </p>
-<h1 align="center">IPs-LE</h1>
+<h1 align="center">IPs-LE: One Address, One Spelling</h1>
 <p align="center">
-  <b>Find every IP address, CIDR block and MAC address in a tree, normalized and classified</b><br/>
-  <i>and named refusals where the text has more than one reading — never a guess</i>
+  <b>Find every IP address, CIDR block and MAC in a document, normalized and classified, and refuse the ambiguous ones by name</b><br/>
+  <i>IPv4 · IPv6 (RFC 5952) · CIDR · MAC — no DNS, no lookups, no sockets</i>
 </p>
 
 <p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.ips-le">
+    <img src="https://img.shields.io/badge/Install%20from-VS%20Code-blue?style=for-the-badge&logo=visualstudiocode" alt="Install from VS Code Marketplace" />
+  </a>
+  <a href="https://open-vsx.org/extension/OffensiveEdge/ips-le">
+    <img src="https://img.shields.io/open-vsx/dt/OffensiveEdge/ips-le?style=for-the-badge&label=Open%20VSX&color=blue" alt="Open VSX downloads" />
+  </a>
+  <a href="https://www.npmjs.com/package/ips-le-mcp">
+    <img src="https://img.shields.io/npm/v/ips-le-mcp?style=for-the-badge&label=MCP%20server&color=blue&logo=npm" alt="ips-le-mcp on npm" />
+  </a>
   <a href="https://crates.io/crates/ips-le">
     <img src="https://img.shields.io/crates/v/ips-le?style=for-the-badge&label=Rust%20CLI&color=blue&logo=rust" alt="ips-le on crates.io" />
-  </a>
-  <a href="https://crates.io/crates/ips-le">
-    <img src="https://img.shields.io/crates/d/ips-le?style=for-the-badge&label=Downloads&color=blue" alt="crates.io downloads" />
-  </a>
-  <a href="https://github.com/nolindnaidoo/ips-le/actions/workflows/ci-crate.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/nolindnaidoo/ips-le/ci-crate.yml?branch=main&style=for-the-badge&label=CI&color=blue&logo=githubactions&logoColor=white" alt="CI" />
-  </a>
-  <a href="https://github.com/nolindnaidoo/ips-le/blob/main/crate/Cargo.toml">
-    <img src="https://img.shields.io/badge/rustc-1.88+-blue?style=for-the-badge&logo=rust" alt="MSRV: Rust 1.88+" />
-  </a>
-  <a href="https://github.com/nolindnaidoo/ips-le/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="MIT licensed" />
   </a>
   <a href="https://letools.dev/tools/ips-le">
     <img src="https://img.shields.io/badge/LE%20Tools-letools.dev-blue?style=for-the-badge" alt="LE Tools" />
@@ -30,110 +27,32 @@
 
 ---
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/nolindnaidoo/ips-le/main/assets/demo.gif" alt="IPs-LE demo — the real binary, recorded by assets/demo.tape" style="max-width: 100%; height: auto;" />
-</p>
-
-> **Useful?** A star is how other developers find it —
+> **Useful?** A star or rating is how other developers find it —
 > [★ GitHub](https://github.com/nolindnaidoo/ips-le) ·
-> [letools.dev/tools/ips-le](https://letools.dev/tools/ips-le)
-
-Somebody has to check the firewall allow-list against the change
-request, the connection string against the network diagram, the fetch
-path against the SSRF review. Usually without a checkout, always without
-the editor open.
-
-`grep -rE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'` half-serves them. It finds
-no IPv6 at all. It calls `1.2.3` an address. It reports
-`2001:0db8::0001` and `2001:db8::1` as two different things — they are
-one address. And it calls `010.1.1.1` an address without saying *which*
-address, which is the whole reason that string is an SSRF bypass.
-
-```bash
-ips-le .
-```
+> [★ Open VSX](https://open-vsx.org/extension/OffensiveEdge/ips-le/reviews) ·
+> [★ Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.ips-le&ssr=false#review-details)
 
 ## What it does
 
-Walks a tree the way ripgrep does, reads the bytes of every text file in
-it, and reports every network address it finds: as written, normalized,
-classified, with its line, column and — where the format has one — the
-key it sits under. stdout is one JSON report per line; stderr is the
-same answer for a person.
+An allow-list review asks whether `2001:0db8::0001` is already on the list. The list says `2001:db8::1`. A diff of the raw text calls them two addresses; they are one.
 
-```
-$ ips-le crate/fixtures/documents/network.yaml
-crate/fixtures/documents/network.yaml:3:11  0.0.0.0  0.0.0.0  reserved
-crate/fixtures/documents/network.yaml:4:15  10.20.30.40  10.20.30.40  private
-crate/fixtures/documents/network.yaml:6:11  127.0.0.1  127.0.0.1  loopback
-crate/fixtures/documents/network.yaml:7:11  2001:0db8::0001  2001:db8::1  documentation
-crate/fixtures/documents/network.yaml:9:5  10.0.0.0/8  10.0.0.0/8  private
-crate/fixtures/documents/network.yaml:10:5  192.168.0.0/16  192.168.0.0/16  private
-crate/fixtures/documents/network.yaml:11:11  169.254.169.254  169.254.169.254  link-local
-crate/fixtures/documents/network.yaml:12:11  aa:bb:cc:dd:ee:ff  aa:bb:cc:dd:ee:ff  global
-crate/fixtures/documents/network.yaml:14:11  10.0.0.7  10.0.0.7  private
-crate/fixtures/documents/network.yaml:14:26  10.0.0.8  10.0.0.8  private
-10 addresses in 1 file
-```
+Open a document, press `Ctrl+Alt+A` (`Cmd+Alt+A` on Mac), and every IPv4 and IPv6 address, CIDR block and MAC address in it is listed by kind with its line and column, the key it sits under, its canonical form and what it is for — loopback, private, link-local, documentation and the rest. A CIDR block comes with its network, its last address and how many addresses it holds. The report opens beside the editor. Works in VS Code and in VS Code–based editors like Cursor and VSCodium (installable from Open VSX).
+
+- **Reviewing a config or an allow-list** — one spelling per address, and the private ones named as private
+- **Reading a log** — every peer and upstream, even inside a URL or a `[host]:port`
+- **Before trusting `010.1.1.1`** — which is two different hosts depending on who reads it
+
+**Text it cannot read unambiguously is reported with the reason, never guessed at.** **It resolves nothing, looks nothing up and rewrites nothing.**
 
 ## Install
 
-```bash
-cargo install ips-le
-```
-
-Or build it from this repository:
-
-```bash
-git clone https://github.com/nolindnaidoo/ips-le
-cd ips-le
-cargo install --path crate
-```
-
-That puts `ips-le` in `~/.cargo/bin`. Rust 1.88 or newer.
-
-## Sixty seconds
-
-```bash
-ips-le .                                   # every address in the tree, as JSON
-ips-le --class private --class loopback .  # what should not be reachable
-ips-le --kind cidr infra/                  # every block, with its arithmetic
-ips-le --strict config/                    # fail the build on any ambiguity
-cat access.log | ips-le --stdin --format log
-
-# the point of the whole thing:
-ips-le . | jq -r '.addresses[] | select(.normalized) | .normalized' | sort -u
-```
-
-Every line of stdout is one file's report, and every field is always
-present — nulls included — so a consumer writes one reader:
-
-```json
-{
-  "schema": 1,
-  "file": "<stdin>",
-  "format": "yaml",
-  "addresses": [
-    {
-      "kind": "ipv6",
-      "text": "2001:0db8::0001",
-      "line": 3,
-      "column": 11,
-      "key": "services.cache.peer",
-      "normalized": "2001:db8::1",
-      "class": "documentation",
-      "cidr": null,
-      "refused": null
-    }
-  ],
-  "diagnostics": [],
-  "summary": { "addresses": 1, "refused": 0 }
-}
-```
-
-There is no `--json` flag. One mode, nothing to misremember, and the
-human summary is a projection of the machine one so the two cannot
-drift.
+| Where | What you get | Install |
+|---|---|---|
+| **VS Code** | The extraction, in your editor, on a keystroke | [Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.ips-le) |
+| **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/OffensiveEdge/ips-le) |
+| **A terminal or a CI step** | A whole tree, with an exit code | `cargo install ips-le` · [crates.io](https://crates.io/crates/ips-le) |
+| **Any MCP agent, via Node** | `extract_ips` over stdio | `npx ips-le-mcp` · [npm](https://www.npmjs.com/package/ips-le-mcp) |
+| **Zed** | The MCP server as a context server | [add it by hand](https://zed.dev/docs/ai/mcp) *(no listing yet)* |
 
 ## What it answers
 
@@ -144,8 +63,7 @@ drift.
 Sorting the raw text gives four addresses; sorting the normalized form
 gives one.
 
-**Four kinds.** `ipv4`, `ipv6`, `cidr`, `mac` — and `--kind` takes the
-same four names.
+**Four kinds.** `ipv4`, `ipv6`, `cidr`, `mac`.
 
 **Ten classes**, closed. A class this cannot name is a class it does not
 claim.
@@ -198,13 +116,6 @@ is one more than a `u128` and far more than a JSON number.
 Where the text supports more than one reading, `ips-le` reports the
 text, names the ambiguity, and stops.
 
-```
-$ ips-le --stdin <<< '010.1.1.1'
-<stdin>:1:1  010.1.1.1  refused OctalHazard
-0 addresses in 1 file
-1 refused
-```
-
 Six reasons, each a place where two answers are equally defensible:
 
 | reason | fires on |
@@ -228,7 +139,7 @@ The two that matter most:
   appearing in a list of addresses with the flag gone.
 
 **A refusal is a finding, not a failure.** It does not move the exit
-code, and no filter can hide it — `--class private` still shows you the
+code, and no filter can hide it — filtering to `private` still shows you the
 octal hazard, because that is the finding a filtered report would most
 regret dropping. `--strict` is there for the pipeline that wants an
 unresolved ambiguity to stop the build.
@@ -245,70 +156,146 @@ depend on the network the auditor happened to be sitting on.
 It also never rewrites a file, and it never gives a verdict. It says
 what an address *is*, never whether it should be there.
 
-## Exit codes
+## Use it from an AI agent
 
-Following grep:
+The same engine runs as an [MCP](https://modelcontextprotocol.io) server, so an agent can call it directly instead of deciding by eye whether two spellings are one address.
 
-| code | meaning |
+| Editor | How |
 |---|---|
-| `0` | at least one address was named |
-| `1` | none was |
-| `2` | the question was malformed |
+| **VS Code** 1.101+ | Nothing to install — the extension registers `extract_ips` with agent mode |
+| **Zed** | No listing yet — [add the MCP server by hand](https://zed.dev/docs/ai/mcp) |
+| **Claude Code** | `claude mcp add ips-le -- npx -y ips-le-mcp` |
+| **Cursor, Windsurf, anything else** | point it at `npx ips-le-mcp` |
 
-Finding none is an answer, and so is a refusal — a file of nothing but
-ambiguities exits 1. `--strict` turns a refusal, or a file that could
-not be read, into a 2. A binary file is counted and never fails the run;
-every repository holds a PNG.
-
-```bash
-if ips-le --strict --class loopback config/; then
-  echo "a loopback address is hardcoded in config/"
-fi
+```
+extract_ips(content, format?, filename?, kind?, class?, maxResults?)
 ```
 
-## Options
+It returns the findings the editor renders, refusals included, as data — capped at 500 by default with `meta.truncated`. It reads no files and makes no network requests. Published as [`ips-le-mcp`](https://www.npmjs.com/package/ips-le-mcp) on npm and as `io.github.nolindnaidoo/ips-le` in the [MCP registry](https://registry.modelcontextprotocol.io). It answers exactly as the Rust CLI's server does: one corpus runs against both, and a differential test feeds both thousands of generated documents in every format — broken JSON included, where both report the parser's own words and position — and compares every answer.
 
-Taken from `ips-le --help`, which is the authority.
+<details>
+<summary><b>Configuring it by hand</b> — any host with an MCP config file</summary>
 
-| Option | What it does |
-|---|---|
-| `--format <format>` | Force a format instead of inferring it from the file name; an unknown name still scans, it just reports no key paths |
-| `--kind <kind>` | Report only `ipv4`, `ipv6`, `cidr` or `mac`; repeatable |
-| `--class <class>` | Report only one class, e.g. `private` or `global`; repeatable |
-| `--strict` | Exit 2 if anything was refused or any file could not be read, rather than reporting it and carrying on |
-| `--stdin` | Read one document from stdin |
-| `--hidden` | Walk hidden files and directories too |
-| `--no-ignore` | Walk files that `.gitignore` excludes |
-
-A filter narrows what this tool claims, never what it declined to claim:
-a refusal survives `--kind` and `--class`, because the finding a filtered
-report would hide is the one most worth seeing.
-
-## As an MCP server
-
-```bash
-ips-le mcp
+```json
+{
+  "mcpServers": {
+    "ips-le": {
+      "command": "npx",
+      "args": ["-y", "ips-le-mcp"]
+    }
+  }
+}
 ```
 
-Two tools, one envelope (`{ ok, data, diagnostics, meta }`):
+Or install it once with `npm install -g ips-le-mcp` and point at `ips-le-mcp`. It needs no environment variables, no API key and no configuration of its own. To check it:
 
-- **`extract_ips`** — takes document text, returns findings. Touches no
-  filesystem.
-- **`ips_le_scan`** — takes a path, reads the tree.
+```bash
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | npx -y ips-le-mcp
+```
 
-`ok` means the scan ran, never that the answer was yes. A model reading
-`2001:0db8::0001` and `2001:db8::1` out of a diff will usually call them
-two addresses; this is how it stops having to guess.
+</details>
+
+## The CLI
+
+The same extraction runs over a whole tree from a terminal or a CI step: a Rust CLI in [`crate/`](crate/README.md), sharing one corpus with the extension — [`crate/fixtures/`](crate/fixtures/) — so the two can never read an address differently.
+
+<p align="center">
+  <img src="assets/demo.gif" alt="ips-le in a terminal" style="max-width: 100%; height: auto;" />
+</p>
+
+```bash
+ips-le .                                   # every address in the tree, one JSON line per file
+ips-le --class private --class loopback .  # what should not be reachable
+ips-le --kind cidr infra/                  # every block, with its arithmetic
+ips-le --strict config/                    # exit 2 on any ambiguity
+ips-le mcp                                 # extract_ips and ips_le_scan over MCP on stdio
+```
+
+**Exit codes follow grep** — 0 at least one address named, 1 none, 2 the question was malformed. A refusal does not move the exit code; `--strict` is how a pipeline turns one into a failure.
+
+## Commands
+
+| Command | Description |
+|---|---|
+| `IPs-LE: Extract Addresses` (`Ctrl+Alt+A` / `Cmd+Alt+A`) | Extract every address in the active document |
+| `IPs-LE: Open Settings` | Open IPs-LE settings |
+| `IPs-LE: Help & Troubleshooting` | Built-in documentation |
+
+## Settings
+
+| Setting | Default | Description |
+|---|---|---|
+| `ips-le.kinds` | `[]` | Report only these kinds; empty reports every kind. Refusals are always reported |
+| `ips-le.classes` | `[]` | Report only these classes; empty reports every class. Refusals are always reported |
+| `ips-le.openResultsSideBySide` | `true` | Open the report beside the current editor |
+| `ips-le.copyToClipboardEnabled` | `false` | Also copy the report to the clipboard |
+| `ips-le.safety.enabled` | `true` | Warn before extracting from a large file |
+| `ips-le.safety.fileSizeWarnBytes` | `1000000` | The size that warning starts at |
+| `ips-le.notificationsLevel` | `silent` | `all` = every notification, `important` = warnings + errors, `silent` = errors only |
+| `ips-le.statusBar.enabled` | `true` | Show the status bar item |
+| `ips-le.telemetryEnabled` | `false` | Local-only event log (see Privacy) |
+
+## Languages
+
+Twelve languages besides English:
+
+German · Spanish · French · Indonesian · Italian · Japanese · Korean ·
+Portuguese (Brazil) · Russian · Ukrainian · Vietnamese · Chinese (Simplified)
+
+Both halves are covered — the manifest (command titles, setting names and descriptions) and everything shown while the extension runs (notifications, the status bar and the report's headings). A refusal's detail is the engine's English, identical to the CLI's.
+
+## Privacy & security
+
+- **No network access.** The extension never sends data anywhere: no DNS, no geolocation, no lookups of any kind. The `telemetryEnabled` setting only writes events to a local Output Channel you can inspect (`IPs-LE`).
+- **The MCP server holds the same line.** It takes content as an argument and returns data: no filesystem access, no network calls, no telemetry.
+- Error notifications redact home directories and credential-shaped fragments.
 
 ## Documentation
 
 | What | Where |
 |---|---|
-| What the tool is allowed to say — the refusal table, the classification table, the output schema, the non-goals | [`crate/SPEC.md`](crate/SPEC.md) |
-| How the code is written and held together — architecture, invariants, the gates, the layout | [`crate/AGENTS.md`](crate/AGENTS.md) |
-| The crate's own front page | [`crate/README.md`](crate/README.md) |
+| What the tool is allowed to say — kinds, classes, refusals, the output contract, non-goals | [`crate/SPEC.md`](crate/SPEC.md) |
+| How the extension is built and held together — architecture, invariants, toolchain, release | [AGENTS.md](AGENTS.md) |
+| How the CLI is built and held together | [`crate/AGENTS.md`](crate/AGENTS.md) |
 | What changed | [CHANGELOG.md](CHANGELOG.md) · [`crate/CHANGELOG.md`](crate/CHANGELOG.md) |
 | The tool's page, and the other fifteen | [letools.dev/tools/ips-le](https://letools.dev/tools/ips-le) |
+
+## Performance
+
+<!-- performance:start -->
+| Input | Size | Found | Time | Rate | Scan speed |
+| --- | --- | --- | --- | --- | --- |
+| Access log | 3.42 MB | 80,000 | 155.25 ms | 515,312/sec | 22 MB/s |
+| JSON config | 2.34 MB | 60,000 | 100.48 ms | 597,123/sec | 23.3 MB/s |
+| Prose with no addresses | 2.51 MB | 40,000 | 70.2 ms | 569,780/sec | 35.7 MB/s |
+
+Median of 7 runs after warmup, on Apple M5 Pro, 24 GB RAM, Node 24.3.0. Inputs are generated
+by `scripts/benchmark.ts` rather than checked in, so the sizes above are
+exactly what was measured. Reproduce with `bun run benchmark`.
+
+These are machine-specific and are not asserted in CI — a benchmark that gates
+a build only tells you how busy the runner was.
+<!-- performance:end -->
+
+## Testing
+
+<!-- coverage:start -->
+| Metric | Coverage |
+| --- | --- |
+| Statements | 82.75% |
+| Branches | 76.65% |
+| Functions | 90.68% |
+| Lines | 84.07% |
+
+103 test cases across 11 files, plus an integration suite that runs
+in a real VS Code extension host and an end-to-end test that installs the
+built `.vsix` into a clean profile.
+
+Generated from a real run — `coverage/coverage-summary.json` and
+`coverage/test-results.json` — by `scripts/coverage-readme.js`; CI fails if
+this section drifts. Reproduce with `bun run test:coverage`, and the case
+count is the one vitest prints.
+<!-- coverage:end -->
 
 ## More from the LE family
 

@@ -1,0 +1,56 @@
+{
+	"name": "ips-le-mcp",
+	"version": "1.0.0",
+	"mcpName": "io.github.nolindnaidoo/ips-le",
+	"description": "Extract every IP address, CIDR block and MAC, normalized and classified by scope.",
+	"keywords": [
+		"mcp",
+		"modelcontextprotocol",
+		"model-context-protocol",
+		"mcp-server",
+		"ai-agent",
+		"claude",
+		"cursor",
+		"zed",
+		"vscode",
+		"llm-tools",
+		"ips-le",
+		"ips-le-mcp",
+		"nolindnaidoo",
+		"letools",
+		"ip",
+		"ipv6",
+		"cidr",
+		"mac-address"
+	],
+	"license": "MIT",
+	"author": {
+		"name": "Nolin Naidoo",
+		"url": "https://nolindnaidoo.com"
+	},
+	"homepage": "https://letools.dev/tools/ips-le",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nolindnaidoo/ips-le.git",
+		"directory": "mcp"
+	},
+	"bugs": {
+		"url": "https://github.com/nolindnaidoo/ips-le/issues"
+	},
+	"type": "commonjs",
+	"bin": {
+		"ips-le-mcp": "server.js"
+	},
+	"files": [
+		"server.js",
+		"README.md",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
+}

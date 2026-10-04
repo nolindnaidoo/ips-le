@@ -1,0 +1,17 @@
+{
+	"Could not be read ({0})": "无法读取的值({0})",
+	"Could not copy to clipboard": "无法复制到剪贴板",
+	"Could not open results": "无法打开结果",
+	"File is empty": "文件为空",
+	"IPs-LE report": "IPs-LE 报告",
+	"Large file detected ({0} bytes). Extraction may take longer.": "检测到大文件({0} 字节)。提取可能需要更长时间。",
+	"No active editor": "没有活动的编辑器",
+	"No addresses found.": "未找到地址。",
+	"Run IPs-LE: Extract Addresses": "运行 IPs-LE:提取地址",
+	"This JSON does not parse, so no key paths are reported": "此 JSON 无法解析,因此不报告键路径",
+	"key": "键",
+	"{0} address(es)": "{0} 个地址",
+	"{0} address(es), {1} could not be read": "{0} 个地址,{1} 个无法读取",
+	"{0} addresses": "共 {0} 个地址",
+	"{0} run(s) could not be read as an address; the report gives each reason": "{0} 个值无法读取为地址;报告中给出了每个值的原因"
+}

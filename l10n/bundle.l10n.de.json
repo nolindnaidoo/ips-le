@@ -1,0 +1,17 @@
+{
+	"Could not be read ({0})": "Nicht lesbar ({0})",
+	"Could not copy to clipboard": "In die Zwischenablage kopieren fehlgeschlagen",
+	"Could not open results": "Ergebnisse konnten nicht geöffnet werden",
+	"File is empty": "Datei ist leer",
+	"IPs-LE report": "IPs-LE-Bericht",
+	"Large file detected ({0} bytes). Extraction may take longer.": "Große Datei erkannt ({0} Bytes). Die Extraktion kann länger dauern.",
+	"No active editor": "Kein aktiver Editor",
+	"No addresses found.": "Keine Adressen gefunden.",
+	"Run IPs-LE: Extract Addresses": "IPs-LE ausführen: Adressen extrahieren",
+	"This JSON does not parse, so no key paths are reported": "Dieses JSON lässt sich nicht parsen, daher werden keine Schlüsselpfade gemeldet",
+	"key": "Schlüssel",
+	"{0} address(es)": "{0} Adresse(n)",
+	"{0} address(es), {1} could not be read": "{0} Adresse(n), {1} nicht lesbar",
+	"{0} addresses": "{0} Adressen",
+	"{0} run(s) could not be read as an address; the report gives each reason": "{0} Wert(e) konnten nicht als Adresse gelesen werden; der Bericht nennt jeweils den Grund"
+}

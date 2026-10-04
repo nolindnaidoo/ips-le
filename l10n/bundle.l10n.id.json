@@ -1,0 +1,17 @@
+{
+	"Could not be read ({0})": "Tidak dapat dibaca ({0})",
+	"Could not copy to clipboard": "Tidak dapat menyalin ke papan klip",
+	"Could not open results": "Tidak dapat membuka hasil",
+	"File is empty": "Berkas kosong",
+	"IPs-LE report": "Laporan IPs-LE",
+	"Large file detected ({0} bytes). Extraction may take longer.": "Berkas besar terdeteksi ({0} byte). Ekstraksi mungkin memakan waktu lebih lama.",
+	"No active editor": "Tidak ada editor aktif",
+	"No addresses found.": "Tidak ada alamat yang ditemukan.",
+	"Run IPs-LE: Extract Addresses": "Jalankan IPs-LE: Ekstrak Alamat",
+	"This JSON does not parse, so no key paths are reported": "JSON ini tidak dapat diurai, jadi tidak ada jalur kunci yang dilaporkan",
+	"key": "kunci",
+	"{0} address(es)": "{0} alamat",
+	"{0} address(es), {1} could not be read": "{0} alamat, {1} tidak dapat dibaca",
+	"{0} addresses": "{0} buah alamat",
+	"{0} run(s) could not be read as an address; the report gives each reason": "{0} nilai tidak dapat dibaca sebagai alamat; laporan memberikan alasan masing-masing"
+}
