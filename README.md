@@ -11,8 +11,8 @@
   <a href="https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.ips-le">
     <img src="https://img.shields.io/badge/Install%20from-VS%20Code-blue?style=for-the-badge&logo=visualstudiocode" alt="Install from VS Code Marketplace" />
   </a>
-  <a href="https://open-vsx.org/extension/OffensiveEdge/ips-le">
-    <img src="https://img.shields.io/open-vsx/dt/OffensiveEdge/ips-le?style=for-the-badge&label=Open%20VSX&color=blue" alt="Open VSX downloads" />
+  <a href="https://open-vsx.org/extension/nolindnaidoo/ips-le">
+    <img src="https://img.shields.io/open-vsx/dt/nolindnaidoo/ips-le?style=for-the-badge&label=Open%20VSX&color=blue" alt="Open VSX downloads" />
   </a>
   <a href="https://www.npmjs.com/package/ips-le-mcp">
     <img src="https://img.shields.io/npm/v/ips-le-mcp?style=for-the-badge&label=MCP%20server&color=blue&logo=npm" alt="ips-le-mcp on npm" />
@@ -29,7 +29,7 @@
 
 > **Useful?** A star or rating is how other developers find it —
 > [★ GitHub](https://github.com/nolindnaidoo/ips-le) ·
-> [★ Open VSX](https://open-vsx.org/extension/OffensiveEdge/ips-le/reviews) ·
+> [★ Open VSX](https://open-vsx.org/extension/nolindnaidoo/ips-le/reviews) ·
 > [★ Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.ips-le&ssr=false#review-details)
 
 ## What it does
@@ -49,7 +49,7 @@ Open a document, press `Ctrl+Alt+A` (`Cmd+Alt+A` on Mac), and every IPv4 and IPv
 | Where | What you get | Install |
 |---|---|---|
 | **VS Code** | The extraction, in your editor, on a keystroke | [Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.ips-le) |
-| **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/OffensiveEdge/ips-le) |
+| **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/nolindnaidoo/ips-le) |
 | **A terminal or a CI step** | A whole tree, with an exit code | `cargo install ips-le` · [crates.io](https://crates.io/crates/ips-le) |
 | **Any MCP agent, via Node** | `extract_ips` over stdio | `npx ips-le-mcp` · [npm](https://www.npmjs.com/package/ips-le-mcp) |
 | **Zed** | The MCP server as a context server | [add it by hand](https://zed.dev/docs/ai/mcp) *(no listing yet)* |
