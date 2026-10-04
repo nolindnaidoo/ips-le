@@ -1,6 +1,6 @@
 {
 	"name": "ips-le-mcp",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"mcpName": "io.github.nolindnaidoo/ips-le",
 	"description": "Extract every IP address, CIDR block and MAC, normalized and classified by scope.",
 	"keywords": [
