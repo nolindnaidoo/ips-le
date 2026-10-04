@@ -597,6 +597,11 @@ export function _createExtensionContext() {
 			update: async (key: string, value: unknown) => {
 				globalStateStore.set(key, value);
 			},
+			setKeysForSync: (_keys: readonly string[]) => {},
+		},
+		extension: {
+			id: 'nolindnaidoo.ips-le',
+			packageJSON: { displayName: 'IPs-LE' },
 		},
 	};
 }
