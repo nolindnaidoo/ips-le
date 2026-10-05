@@ -38,7 +38,7 @@ export function generateHelpContent(): string {
 		'',
 		'## Commands',
 		'',
-		'- **Extract Addresses** (`Ctrl+Alt+A`, Mac `Cmd+Alt+A`): the active document, as the editor holds it.',
+		'- **Extract Addresses**: the active document, as the editor holds it.',
 		'',
 		'## What each finding carries',
 		'',
