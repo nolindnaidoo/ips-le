@@ -7,6 +7,8 @@ export interface ReportInput {
 	readonly rows: readonly Found[];
 	/** The JSON parser's message, when the document did not parse. */
 	readonly unparsed: string | undefined;
+	/** Whether each row leads with its line and column. On unless said otherwise. */
+	readonly positions?: boolean;
 }
 
 /**
@@ -19,6 +21,7 @@ export function formatReport({
 	format,
 	rows,
 	unparsed,
+	positions = true,
 }: ReportInput): string {
 	const refusals = rows.filter((row) => row.refused !== null);
 	const addresses = rows.length - refusals.length;
@@ -39,7 +42,7 @@ export function formatReport({
 		);
 		if (ofKind.length === 0) continue;
 		lines.push(`## ${kind} (${ofKind.length})`, '');
-		for (const row of ofKind) lines.push(item(row));
+		for (const row of ofKind) lines.push(item(row, positions));
 		lines.push('');
 	}
 
@@ -50,7 +53,7 @@ export function formatReport({
 		);
 		for (const row of refusals)
 			lines.push(
-				item(row),
+				item(row, positions),
 				'',
 				`  ${row.refused?.reason}: ${row.refused?.detail}`,
 				'',
@@ -59,9 +62,11 @@ export function formatReport({
 	return lines.join('\n');
 }
 
-/** One row: where, what, its canonical form and class, its key, and a block's span. */
-function item(row: Found): string {
-	const parts = [`**${row.line}:${row.column}**`, code(row.text)];
+/** One row: where, if asked for, then what, its canonical form and class, its key, and a block's span. */
+function item(row: Found, positions: boolean): string {
+	const parts = positions
+		? [`**${row.line}:${row.column}**`, code(row.text)]
+		: [code(row.text)];
 	if (row.refused !== null && row.kind !== null) parts.push(row.kind);
 	if (row.normalized !== null && row.normalized !== row.text)
 		parts.push(`→ ${code(row.normalized)}`);
