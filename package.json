@@ -104,14 +104,6 @@
 				}
 			]
 		},
-		"keybindings": [
-			{
-				"command": "ips-le.extract",
-				"key": "ctrl+alt+a",
-				"mac": "cmd+alt+a",
-				"when": "editorTextFocus"
-			}
-		],
 		"configuration": {
 			"title": "%manifest.settings.title%",
 			"properties": {

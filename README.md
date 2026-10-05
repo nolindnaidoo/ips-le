@@ -36,7 +36,7 @@
 
 An allow-list review asks whether `2001:0db8::0001` is already on the list. The list says `2001:db8::1`. A diff of the raw text calls them two addresses; they are one.
 
-Open a document, press `Ctrl+Alt+A` (`Cmd+Alt+A` on Mac), and every IPv4 and IPv6 address, CIDR block and MAC address in it is listed by kind with its line and column, the key it sits under, its canonical form and what it is for — loopback, private, link-local, documentation and the rest. A CIDR block comes with its network, its last address and how many addresses it holds. The report opens beside the editor. Works in VS Code and in VS Code–based editors like Cursor and VSCodium (installable from Open VSX).
+Open a document, run `IPs-LE: Extract Addresses`, and every IPv4 and IPv6 address, CIDR block and MAC address in it is listed by kind with its line and column, the key it sits under, its canonical form and what it is for — loopback, private, link-local, documentation and the rest. A CIDR block comes with its network, its last address and how many addresses it holds. The report opens beside the editor. Works in VS Code and in VS Code–based editors like Cursor and VSCodium (installable from Open VSX).
 
 - **Reviewing a config or an allow-list** — one spelling per address, and the private ones named as private
 - **Reading a log** — every peer and upstream, even inside a URL or a `[host]:port`
@@ -215,9 +215,11 @@ ips-le mcp                                 # extract_ips and ips_le_scan over MC
 
 | Command | Description |
 |---|---|
-| `IPs-LE: Extract Addresses` (`Ctrl+Alt+A` / `Cmd+Alt+A`) | Extract every address in the active document |
+| `IPs-LE: Extract Addresses` | Extract every address in the active document |
 | `IPs-LE: Open Settings` | Open IPs-LE settings |
 | `IPs-LE: Help & Troubleshooting` | Built-in documentation |
+
+No command is bound to a key by default. Give any of them one under **Keyboard Shortcuts** in the editor.
 
 ## Settings
 
