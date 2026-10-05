@@ -128,6 +128,11 @@
 					"uniqueItems": true,
 					"description": "%manifest.settings.classes.desc%"
 				},
+				"ips-le.clipboardIncludesPositions": {
+					"type": "boolean",
+					"default": true,
+					"description": "%manifest.settings.clipboard.positions.desc%"
+				},
 				"ips-le.copyToClipboardEnabled": {
 					"type": "boolean",
 					"default": false,
@@ -178,6 +183,11 @@
 					"default": 1000000,
 					"minimum": 1000,
 					"description": "%manifest.settings.safety.warn.file-size.desc%"
+				},
+				"ips-le.showPositions": {
+					"type": "boolean",
+					"default": true,
+					"description": "%manifest.settings.show.positions.desc%"
 				},
 				"ips-le.statusBar.enabled": {
 					"type": "boolean",

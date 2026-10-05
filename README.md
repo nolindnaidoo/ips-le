@@ -228,7 +228,9 @@ No command is bound to a key by default. Give any of them one under **Keyboard S
 | `ips-le.kinds` | `[]` | Report only these kinds; empty reports every kind. Refusals are always reported |
 | `ips-le.classes` | `[]` | Report only these classes; empty reports every class. Refusals are always reported |
 | `ips-le.openResultsSideBySide` | `true` | Open the report beside the current editor |
+| `ips-le.showPositions` | `true` | Show the line and column of each address |
 | `ips-le.copyToClipboardEnabled` | `false` | Also copy the report to the clipboard |
+| `ips-le.clipboardIncludesPositions` | `true` | Include the line and column in that copy |
 | `ips-le.safety.enabled` | `true` | Warn before extracting from a large file |
 | `ips-le.safety.fileSizeWarnBytes` | `1000000` | The size that warning starts at |
 | `ips-le.notificationsLevel` | `silent` | `all` = every notification, `important` = warnings + errors, `silent` = errors only |
@@ -283,11 +285,11 @@ a build only tells you how busy the runner was.
 | Metric | Coverage |
 | --- | --- |
 | Statements | 82.75% |
-| Branches | 76.65% |
+| Branches | 76.76% |
 | Functions | 90.68% |
 | Lines | 84.07% |
 
-103 test cases across 11 files, plus an integration suite that runs
+107 test cases across 11 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 

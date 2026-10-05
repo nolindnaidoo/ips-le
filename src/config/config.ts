@@ -9,12 +9,14 @@ import type { Configuration, NotificationLevel } from '../types';
  */
 export const CONFIG_DEFAULTS = Object.freeze({
 	classes: [] as const,
+	clipboardIncludesPositions: true,
 	copyToClipboardEnabled: false,
 	kinds: [] as const,
 	notificationsLevel: 'silent' as const,
 	openResultsSideBySide: true,
 	safetyEnabled: true,
 	safetyFileSizeWarnBytes: 1_000_000,
+	showPositions: true,
 	statusBarEnabled: true,
 	telemetryEnabled: false,
 });
@@ -23,6 +25,11 @@ export function readConfig(): Configuration {
 	const config = vscode.workspace.getConfiguration('ips-le');
 	return Object.freeze({
 		classes: readNames(config, 'classes', CLASSES),
+		clipboardIncludesPositions: readBoolean(
+			config,
+			'clipboardIncludesPositions',
+			CONFIG_DEFAULTS.clipboardIncludesPositions,
+		),
 		copyToClipboardEnabled: readBoolean(
 			config,
 			'copyToClipboardEnabled',
@@ -45,6 +52,11 @@ export function readConfig(): Configuration {
 			'safety.fileSizeWarnBytes',
 			CONFIG_DEFAULTS.safetyFileSizeWarnBytes,
 			1000,
+		),
+		showPositions: readBoolean(
+			config,
+			'showPositions',
+			CONFIG_DEFAULTS.showPositions,
 		),
 		statusBarEnabled: readBoolean(
 			config,

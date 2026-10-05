@@ -22,12 +22,14 @@ describe('config defaults parity with package.json', () => {
 	const props = manifest.contributes.configuration.properties;
 	const KEY_MAP: Record<string, keyof typeof CONFIG_DEFAULTS> = {
 		'ips-le.classes': 'classes',
+		'ips-le.clipboardIncludesPositions': 'clipboardIncludesPositions',
 		'ips-le.copyToClipboardEnabled': 'copyToClipboardEnabled',
 		'ips-le.kinds': 'kinds',
 		'ips-le.notificationsLevel': 'notificationsLevel',
 		'ips-le.openResultsSideBySide': 'openResultsSideBySide',
 		'ips-le.safety.enabled': 'safetyEnabled',
 		'ips-le.safety.fileSizeWarnBytes': 'safetyFileSizeWarnBytes',
+		'ips-le.showPositions': 'showPositions',
 		'ips-le.statusBar.enabled': 'statusBarEnabled',
 		'ips-le.telemetryEnabled': 'telemetryEnabled',
 	};
