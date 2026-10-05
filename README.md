@@ -52,7 +52,6 @@ Open a document, press `Ctrl+Alt+A` (`Cmd+Alt+A` on Mac), and every IPv4 and IPv
 | **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/nolindnaidoo/ips-le) |
 | **A terminal or a CI step** | A whole tree, with an exit code | `cargo install ips-le` · [crates.io](https://crates.io/crates/ips-le) |
 | **Any MCP agent, via Node** | `extract_ips` over stdio | `npx ips-le-mcp` · [npm](https://www.npmjs.com/package/ips-le-mcp) |
-| **Zed** | The MCP server as a context server | [add it by hand](https://zed.dev/docs/ai/mcp) *(no listing yet)* |
 
 ## What it answers
 
@@ -163,7 +162,6 @@ The same engine runs as an [MCP](https://modelcontextprotocol.io) server, so an 
 | Editor | How |
 |---|---|
 | **VS Code** 1.101+ | Nothing to install — the extension registers `extract_ips` with agent mode |
-| **Zed** | No listing yet — [add the MCP server by hand](https://zed.dev/docs/ai/mcp) |
 | **Claude Code** | `claude mcp add ips-le -- npx -y ips-le-mcp` |
 | **Cursor, Windsurf, anything else** | point it at `npx ips-le-mcp` |
 
