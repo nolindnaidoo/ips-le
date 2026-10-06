@@ -1,5 +1,5 @@
 import * as assert from 'node:assert';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import * as vscode from 'vscode';
@@ -36,7 +36,13 @@ describe('IPs-LE integration', function () {
 		const extension = vscode.extensions.getExtension(EXTENSION_ID);
 		await extension?.activate();
 		const commands = await vscode.commands.getCommands(true);
-		for (const id of ['ips-le.extract', 'ips-le.openSettings', 'ips-le.help']) {
+		for (const id of [
+			'ips-le.extract',
+			'ips-le.scanWorkspace',
+			'ips-le.scanFolder',
+			'ips-le.openSettings',
+			'ips-le.help',
+		]) {
 			assert.ok(commands.includes(id), `missing command: ${id}`);
 		}
 	});
@@ -72,5 +78,55 @@ describe('IPs-LE integration', function () {
 			providers.map((p) => p.id),
 			['ips-le'],
 		);
+	});
+
+	it('scans a folder from disk: a section per file, excludes honoured, binaries left unread, refusals in Problems', async () => {
+		const root = mkdtempSync(join(tmpdir(), 'ips-le-scan-'));
+		mkdirSync(join(root, 'api'));
+		mkdirSync(join(root, 'node_modules'));
+		const uuid = '192.0.2.10';
+		const bad = '010.1.1.1';
+		writeFileSync(join(root, 'api', 'a.json'), JSON.stringify({ id: uuid }));
+		writeFileSync(join(root, 'api', 'b.txt'), `first ${uuid}\nthen ${bad}\n`);
+		writeFileSync(join(root, 'node_modules', 'dep.json'), JSON.stringify({ id: uuid }));
+		writeFileSync(join(root, 'logo.bin'), Buffer.from([0x89, 0x50, 0x00, 0x47]));
+		writeFileSync(join(root, 'empty.md'), 'nothing here');
+
+		writeFileSync(join(root, '.gitignore'), 'generated/\n');
+		mkdirSync(join(root, 'generated'));
+		writeFileSync(join(root, 'generated', 'g.json'), JSON.stringify({ id: uuid }));
+		const settings = vscode.workspace.getConfiguration('ips-le');
+		await settings.update('workspace.scanProblemsEnabled', true, vscode.ConfigurationTarget.Global);
+
+		// As the Explorer calls it: with the folder that was clicked.
+		await vscode.commands.executeCommand('ips-le.scanFolder', vscode.Uri.file(root));
+		await settings.update('workspace.scanProblemsEnabled', undefined, vscode.ConfigurationTarget.Global);
+
+		// This scan's report, whatever other reports the session has open.
+		const report = vscode.workspace.textDocuments.find(
+			(doc) => doc.languageId === 'markdown' && doc.getText().includes('ips-le-scan-'),
+		);
+		assert.ok(report, 'no workspace report was opened');
+		const text = report.getText();
+		// The .gitignore itself is read, and what it names is not.
+		assert.match(text, /4 file\(s\) read · 2 address\(es\), 1 could not be read/);
+		assert.ok(!text.includes('generated'), 'a file ignored by .gitignore was read');
+		assert.match(text, /\| `api\/b\.txt` \| 1 \| 1 \|/);
+		assert.deepStrictEqual(text.match(/^## .*$/gm), ['## `api/a.json` · json (1)', '## `api/b.txt` · unknown (1)']);
+		assert.ok(!text.includes('node_modules'), 'an excluded folder was read');
+		// `.bin` is on the list of extensions that are not text, so the file is
+		// never opened, and the report says which filters were on.
+		assert.match(text, /> Not read: dependency folders, build output, caches and lockfiles; images, fonts, archives and other binary files; 1 file\(s\) ignored by \.gitignore\./);
+
+		const problems = vscode.languages
+			.getDiagnostics()
+			.filter(([, list]) => list.some((d) => d.source === 'ips-le'));
+		assert.strictEqual(problems.length, 1, 'expected problems for one file');
+		const [uri, list] = problems[0] as [vscode.Uri, vscode.Diagnostic[]];
+		assert.ok(uri.path.endsWith('/api/b.txt'));
+		assert.strictEqual(list.length, 1);
+		assert.strictEqual(list[0]?.severity, vscode.DiagnosticSeverity.Warning);
+		assert.strictEqual(list[0]?.range.start.line, 1);
+		assert.strictEqual(list[0]?.range.start.character, 5);
 	});
 });

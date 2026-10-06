@@ -41,6 +41,7 @@ Open a document, run `IPs-LE: Extract Addresses`, and every IPv4 and IPv6 addres
 - **Reviewing a config or an allow-list** — one spelling per address, and the private ones named as private
 - **Reading a log** — every peer and upstream, even inside a URL or a `[host]:port`
 - **Before trusting `010.1.1.1`** — which is two different hosts depending on who reads it
+- **Across a project** — every file that holds an address, and how many, in one table
 
 **Text it cannot read unambiguously is reported with the reason, never guessed at.** **It resolves nothing, looks nothing up and rewrites nothing.**
 
@@ -155,6 +156,94 @@ depend on the network the auditor happened to be sitting on.
 It also never rewrites a file, and it never gives a verdict. It says
 what an address *is*, never whether it should be there.
 
+## Across a folder or a workspace
+
+Extract reads the document you have open. A scan reads many files from disk and gives one report.
+
+- **The whole workspace**: run `IPs-LE: Scan Workspace for Addresses` from the command palette.
+- **One folder**: right-click it in the Explorer and choose `Scan Folder for Addresses`, or run `IPs-LE: Scan Folder for Addresses` and pick one.
+
+The report opens with a table of every file that holds something, then has a section per file:
+
+```markdown
+# IPs-LE workspace report
+
+`my-project` · 113 file(s) read · 2 address(es), 1 could not be read
+
+| File | Addresses | Could not be read |
+|---|---|---|
+| `deploy/config.json` | 2 | 1 |
+
+## `deploy/config.json` · json (2)
+
+- **3:14** · `2001:0db8:0000:0000:0000:0000:0000:0001` · ipv6 · → `2001:db8::1` · documentation · key `upstream.host`
+- **5:12** · `192.0.2.10` · ipv4 · documentation · key `peer`
+
+> 2 file(s) larger than the safety limit were not read.
+```
+
+**What a scan reads.** Files come from disk, so an unsaved edit is not seen. A file over the safety size, or one that is not UTF-8 text, is left unread. It stops at 5,000 files or 10,000 listed addresses. The report ends with a line for each thing it left out, so a short report is never mistaken for a clean project.
+
+**What it skips, and how to change that.** Three switches are on by default, and each can be turned off on its own in Settings:
+
+| Switch | Skips |
+|---|---|
+| `scanUseDefaultExcludes` | Dependency folders, build output, tool caches and lockfiles. The full list is below |
+| `scanRespectGitignore` | Whatever the project's `.gitignore` files skip |
+| `scanSkipBinaryFiles` | Images, fonts, archives and other files that are not text |
+
+Two lists adjust the result without turning a switch off. To skip more, add a pattern to `scanExcludes`. To read something a switch would skip, add it to `scanAlwaysInclude`:
+
+```jsonc
+{
+	// Also skip the test fixtures.
+	"ips-le.workspace.scanExcludes": ["**/fixtures/**"],
+	// Read the vendored code, though the built-in list skips it.
+	"ips-le.workspace.scanAlwaysInclude": ["**/vendor/**"]
+}
+```
+
+`IPs-LE: Open Settings` opens all of these in the Settings editor.
+
+<details>
+<summary>The built-in list</summary>
+
+Folders, wherever they appear:
+
+<!-- built-in-folders -->
+`.git`, `.hg`, `.svn`, `node_modules`, `bower_components`, `jspm_packages`, `.pnpm-store`, `.yarn`, `vendor`, `site-packages`, `Pods`, `Carthage`, `dist`, `build`, `out`, `target`, `_build`, `_site`, `dist-newstyle`, `zig-out`, `storybook-static`, `cdk.out`, `DerivedData`, `CMakeFiles`, `.next`, `.nuxt`, `.output`, `.svelte-kit`, `.angular`, `.astro`, `.docusaurus`, `.vuepress`, `.expo`, `.turbo`, `.parcel-cache`, `.cache`, `.sass-cache`, `.jekyll-cache`, `.dart_tool`, `.pub-cache`, `.gradle`, `.kotlin`, `.cxx`, `.externalNativeBuild`, `captures`, `ephemeral`, `.symlinks`, `.swiftpm`, `.build`, `.bundle`, `.stack-work`, `.zig-cache`, `.godot`, `elm-stuff`, `.vercel`, `.netlify`, `.serverless`, `.aws-sam`, `.terraform`, `.venv`, `venv`, `__pycache__`, `.tox`, `.nox`, `.mypy_cache`, `.pytest_cache`, `.ruff_cache`, `.ipynb_checkpoints`, `.eggs`, `coverage`, `htmlcov`, `.nyc_output`, `.vscode-test`, `.idea`, `.vs`, `xcuserdata`, `*.egg-info`
+<!-- /built-in-folders -->
+
+Files, wherever they appear:
+
+<!-- built-in-files -->
+`*.min.js`, `*.min.css`, `*.map`, `*.snap`, `*.lock`, `package-lock.json`, `pnpm-lock.yaml`, `npm-shrinkwrap.json`, `go.sum`, `*.pbxproj`, `*.iml`, `local.properties`, `output-metadata.json`, `.flutter-plugins`, `.flutter-plugins-dependencies`, `.packages`, `Generated.xcconfig`, `flutter_export_environment.sh`, `GeneratedPluginRegistrant.*`, `fastlane/report.xml`, `fastlane/test_output/**`, `doc/api/**`
+<!-- /built-in-files -->
+
+Not on the list, because they are ordinary folders in many projects: `bin`, `obj`, `tmp`, `logs`, `public`, `generated`. A project that generates those ignores them in git, and the scan reads `.gitignore`.
+
+</details>
+
+**What it could not read.** Across a project there can be many, and they crowd out the rest. So a scan counts them per file in the table and does not list them. `ips-le.workspace.scanIncludeRefusals` lists each one with its reason, and `ips-le.workspace.scanProblemsEnabled` also puts them in the Problems panel, where each is a line you can click.
+
+The settings that shape a scan are under [Settings](#settings).
+
+## Positions
+
+Each row leads with the line and column of the address:
+
+```markdown
+- **3:14** · `2001:0db8:0000:0000:0000:0000:0000:0001` · → `2001:db8::1` · documentation · key `upstream.host`
+```
+
+Turn `ips-le.showPositions` off and the same row is:
+
+```markdown
+- `2001:0db8:0000:0000:0000:0000:0000:0001` · → `2001:db8::1` · documentation · key `upstream.host`
+```
+
+Nothing else changes: the same rows, the same counts. The copy on the clipboard is a separate choice, `ips-le.clipboardIncludesPositions`, so a report can show positions on screen and paste without them. Both apply to a scan as they do to Extract.
+
 ## Use it from an AI agent
 
 The same engine runs as an [MCP](https://modelcontextprotocol.io) server, so an agent can call it directly instead of deciding by eye whether two spellings are one address.
@@ -216,6 +305,8 @@ ips-le mcp                                 # extract_ips and ips_le_scan over MC
 | Command | Description |
 |---|---|
 | `IPs-LE: Extract Addresses` | Extract every address in the active document |
+| `IPs-LE: Scan Workspace for Addresses` | Extract from every file in the workspace, one section per file |
+| `IPs-LE: Scan Folder for Addresses` | The same for one folder. Also on a folder in the Explorer |
 | `IPs-LE: Open Settings` | Open IPs-LE settings |
 | `IPs-LE: Help & Troubleshooting` | Built-in documentation |
 
@@ -231,6 +322,16 @@ No command is bound to a key by default. Give any of them one under **Keyboard S
 | `ips-le.showPositions` | `true` | Show the line and column of each address |
 | `ips-le.copyToClipboardEnabled` | `false` | Also copy the report to the clipboard |
 | `ips-le.clipboardIncludesPositions` | `true` | Include the line and column in that copy |
+| `ips-le.workspace.scanPatterns` | `["**/*"]` | The files a folder or workspace scan reads |
+| `ips-le.workspace.scanUseDefaultExcludes` | `true` | Skip dependency folders, build output, caches and lockfiles |
+| `ips-le.workspace.scanRespectGitignore` | `true` | Skip what the project's `.gitignore` files skip |
+| `ips-le.workspace.scanSkipBinaryFiles` | `true` | Skip images, fonts, archives and other files that are not text |
+| `ips-le.workspace.scanExcludes` | `[]` | More files to skip, as glob patterns |
+| `ips-le.workspace.scanAlwaysInclude` | `[]` | Files to read even when one of the three above would skip them |
+| `ips-le.workspace.scanMaxFiles` | `5000` | The most files one scan reads |
+| `ips-le.workspace.scanMaxResults` | `10000` | The most addresses one scan lists before it stops reading |
+| `ips-le.workspace.scanIncludeRefusals` | `false` | List each run that could not be read, not only how many per file |
+| `ips-le.workspace.scanProblemsEnabled` | `false` | Also show the runs that could not be read in the Problems panel |
 | `ips-le.safety.enabled` | `true` | Warn before extracting from a large file |
 | `ips-le.safety.fileSizeWarnBytes` | `1000000` | The size that warning starts at |
 | `ips-le.notificationsLevel` | `silent` | `all` = every notification, `important` = warnings + errors, `silent` = errors only |
@@ -284,12 +385,12 @@ a build only tells you how busy the runner was.
 <!-- coverage:start -->
 | Metric | Coverage |
 | --- | --- |
-| Statements | 82.75% |
-| Branches | 76.76% |
-| Functions | 90.68% |
-| Lines | 84.07% |
+| Statements | 85.29% |
+| Branches | 78.94% |
+| Functions | 92.33% |
+| Lines | 86.83% |
 
-107 test cases across 11 files, plus an integration suite that runs
+160 test cases across 13 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 
