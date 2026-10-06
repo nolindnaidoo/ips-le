@@ -10,10 +10,36 @@ separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md). The entries below 1.0.0 describe this
 repository while it held the CLI alone.
 
-## [1.1.0] - 2026-10-05
+## [1.1.0] - 2026-10-06
 
 ### Added
 
+- Scan a folder or the whole workspace. `IPs-LE: Scan Workspace for Addresses`
+  reads every file in the workspace from disk. `IPs-LE: Scan Folder for Addresses`
+  does the same for one folder, from the command palette or from a folder in
+  the Explorer. Files are read from disk, so an unsaved edit is not seen. The
+  report opens with a table of every file that holds an address, then has
+  a section per file, and ends with a line for each thing the scan left
+  unread.
+- A scan skips three things by default, each with its own switch:
+  dependency folders, build output, caches and lockfiles
+  (`ips-le.workspace.scanUseDefaultExcludes`), whatever the project's
+  `.gitignore` files skip (`ips-le.workspace.scanRespectGitignore`), and
+  images, fonts, archives and other files that are not text
+  (`ips-le.workspace.scanSkipBinaryFiles`). `ips-le.workspace.scanExcludes`
+  skips more, and `ips-le.workspace.scanAlwaysInclude` reads a path whatever
+  the switches say. The report names which of these were on.
+  `ips-le.workspace.scanPatterns` chooses the files to read in the first
+  place.
+- `ips-le.workspace.scanMaxFiles` caps how many files are read and
+  `ips-le.workspace.scanMaxResults` caps how many addresses are listed. A
+  file over the safety size, or one that is not UTF-8 text, is left unread,
+  and the report says how many were.
+- Runs that could not be read are counted per file in a scan, not listed.
+  `ips-le.workspace.scanIncludeRefusals` lists each one, and
+  `ips-le.workspace.scanProblemsEnabled` also shows them in the Problems
+  panel. Both are off by default, so a project's report stays short.
+- The positions settings apply to a scan as they do to Extract.
 - Positions are now a setting. `ips-le.showPositions` decides whether the
   output gives the line and column of each address, and
   `ips-le.clipboardIncludesPositions` decides the same for the copy on the

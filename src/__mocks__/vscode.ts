@@ -76,7 +76,45 @@ export class Position {
 		public readonly line: number,
 		public readonly character: number,
 	) {}
+	translate(lines: number, characters: number): Position {
+		return new Position(this.line + lines, this.character + characters);
+	}
 }
+
+export class RelativePattern {
+	constructor(
+		public readonly baseUri: Uri,
+		public readonly pattern: string,
+	) {}
+}
+
+export const DiagnosticSeverity = { Error: 0, Warning: 1, Information: 2, Hint: 3 };
+
+export class Diagnostic {
+	source: string | undefined;
+	constructor(
+		public readonly range: Range,
+		public readonly message: string,
+		public readonly severity: number,
+	) {}
+}
+
+const publishedDiagnostics = new Map<string, Diagnostic[]>();
+
+/** What the Problems panel would show: file path to its diagnostics. */
+export function _diagnostics(): ReadonlyMap<string, readonly Diagnostic[]> {
+	return publishedDiagnostics;
+}
+
+export const languages = {
+	createDiagnosticCollection: (_name: string) => ({
+		clear: () => publishedDiagnostics.clear(),
+		set: (uri: Uri, items: Diagnostic[]) => {
+			publishedDiagnostics.set(uri.path, items);
+		},
+		dispose: () => publishedDiagnostics.clear(),
+	}),
+};
 
 export class Range {
 	constructor(
@@ -239,6 +277,38 @@ function isDirectory(path: string): boolean {
 export const workspace = {
 	workspaceFolders: undefined as WorkspaceFolder[] | undefined,
 	getWorkspaceFolder: (_uri: Uri) => undefined as WorkspaceFolder | undefined,
+	// Globs are read as the editor reads the ones this code sends: `**/`
+	// for any depth, `/**` for everything beneath, `*` within one segment.
+	findFiles: async (include: string | RelativePattern, exclude?: string | null, maxResults?: number) => {
+		const toRegExp = (glob: string) =>
+			new RegExp(
+				`^${glob
+					.split(/(\*\*\/|\/\*\*|\*)/)
+					.map((part) =>
+						part === '**/'
+							? '(?:.*/)?'
+							: part === '/**'
+								? '/.*'
+								: part === '*'
+									? '[^/]*'
+									: part.replace(/[.+?^${}()|[\]\\]/g, '\\$&'),
+					)
+					.join('')}$`,
+			);
+		const excluded = (exclude ?? '')
+			.replace(/^\{|\}$/g, '')
+			.split(',')
+			.filter(Boolean)
+			.map(toRegExp);
+		const base = typeof include === 'string' ? '' : `${include.baseUri.path}/`;
+		const wanted = toRegExp(typeof include === 'string' ? include : include.pattern);
+		return [...workspaceFiles.keys()]
+			.filter((path) => path.startsWith(base))
+			.filter((path) => wanted.test(path.slice(base.length)))
+			.filter((path) => !excluded.some((glob) => glob.test(path.slice(1))))
+			.slice(0, maxResults)
+			.map((path) => Uri.file(path));
+	},
 	asRelativePath: (target: Uri | string, _includeFolder?: boolean) => (typeof target === 'string' ? target : target.path),
 	fs: {
 		readFile: async (uri: Uri) => {
@@ -363,6 +433,14 @@ export function _respondToWarning(
 	warningResponder = responder;
 }
 
+let openDialogResponder: (() => Uri[] | undefined) | undefined;
+
+export function _respondToOpenDialog(
+	responder: (() => Uri[] | undefined) | undefined,
+): void {
+	openDialogResponder = responder;
+}
+
 export const StatusBarAlignment = { Left: 1, Right: 2 };
 export const ViewColumn = { Active: -1, Beside: -2, One: 1, Two: 2 };
 export const ProgressLocation = { Notification: 15, Window: 10 };
@@ -388,6 +466,7 @@ export const window = {
 		shownMessages.push({ kind: 'error', message, items });
 		return undefined;
 	},
+	showOpenDialog: async (_options?: unknown) => openDialogResponder?.(),
 	showQuickPick: async (items: unknown[], _options?: unknown) =>
 		quickPickResponder ? quickPickResponder(items) : undefined,
 	showInputBox: async (options?: unknown) => {
@@ -552,6 +631,8 @@ export function _resetMockState(): void {
 	warningResponder = undefined;
 	clipboard.value = '';
 	workspaceFiles.clear();
+	publishedDiagnostics.clear();
+	openDialogResponder = undefined;
 	workspace.workspaceFolders = undefined;
 }
 
