@@ -352,7 +352,7 @@ Both halves are covered — the manifest (command titles, setting names and desc
 - **No network access.** The extension never sends data anywhere: no DNS, no geolocation, no lookups of any kind. The `telemetryEnabled` setting only writes events to a local Output Channel you can inspect (`IPs-LE`).
 - **The MCP server holds the same line.** It takes content as an argument and returns data: no filesystem access, no network calls, no telemetry.
 - Error notifications redact home directories and credential-shaped fragments.
-- **One rating prompt, at most twice.** After 10 successful uses across 3 separate days the extension asks once whether you would rate it, and once more 30 uses later if you chose *Later* or dismissed it. *Don't Ask Again* ends it. Setting `notificationsLevel` to `important` or `silent` yourself turns it off. The counts are kept in VS Code's extension storage and nothing is sent anywhere; *Rate* opens the listing you installed from — the VS Code Marketplace or Open VSX — in your browser.
+- **One rating prompt, at most twice.** After 3 successful uses, on at least the second day you use it, the extension asks once whether you would rate it, and once more on the 25th use if you chose *Later* or dismissed it. *Don't Ask Again* ends it. Setting `notificationsLevel` to `important` or `silent` yourself turns it off. The counts are kept in VS Code's extension storage and nothing is sent anywhere; *Rate* opens the listing you installed from — the VS Code Marketplace or Open VSX — in your browser.
 
 ## Documentation
 
@@ -391,7 +391,7 @@ a build only tells you how busy the runner was.
 | Functions | 93.58% |
 | Lines | 88.24% |
 
-194 test cases across 16 files, plus an integration suite that runs
+197 test cases across 16 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 
