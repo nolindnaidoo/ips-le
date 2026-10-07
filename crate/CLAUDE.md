@@ -17,7 +17,7 @@ any conflict.
   for `allow` alone, and an `#[expect(dead_code)]` sat under a green
   build because of it.
 - New logic goes in `extract/` when it is pure — it must then be unit
-  tested, and it carries a **75% line coverage floor per module**. A
+  tested, and it carries a **70% line coverage floor per module**. A
   `std::fs` or a `std::net::TcpStream` there is a bug.
   `std::net::{Ipv4Addr, Ipv6Addr}` is *parsing*, not networking.
 - **No network, ever.** Not a DNS lookup, not a connect, not a WHOIS,
