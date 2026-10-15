@@ -15,6 +15,8 @@
   </a>
 </p>
 
+![An agent in Claude Code calling the ips-le MCP server](https://raw.githubusercontent.com/nolindnaidoo/ips-le/main/assets/demos/mcp.gif)
+
 An [MCP](https://modelcontextprotocol.io) server that finds every IPv4 and
 IPv6 address, CIDR block and MAC address in a document — with its line,
 column and key path, its canonical form, and what it is for: loopback,
