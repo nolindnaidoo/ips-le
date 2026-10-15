@@ -1,0 +1,16 @@
+{
+  "files": [
+    "access.log"
+  ],
+  "steps": [
+    {
+      "wait": 1500
+    },
+    {
+      "command": "IPs-LE: Extract Addresses"
+    },
+    {
+      "wait": 5000
+    }
+  ]
+}
