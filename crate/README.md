@@ -126,7 +126,7 @@ text, names the ambiguity, and stops.
 
 ```
 $ ips-le --stdin <<< '010.1.1.1'
-<stdin>:1:1  010.1.1.1  refused OctalHazard
+<stdin>:1:1  010.1.1.1  refused OctalHazard — 010.1.1.1 has a leading zero. Some resolvers read a leading-zero octet as octal and some as decimal, so this text has two addresses and no way to choose.
 0 addresses in 1 file
 1 refused
 ```
