@@ -9,6 +9,10 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **A refusal on stderr carries its reason.** The line named the refusal
+  and left the sentence saying what to check in the report alone, which
+  a person at a terminal no longer sees.
+
 - **stdout is silent at a terminal.** The JSON reports printed on the
   same screen as the stderr listing and said the same thing again. Piped
   or redirected, stdout carries every report exactly as before.

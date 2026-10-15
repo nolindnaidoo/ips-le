@@ -261,7 +261,7 @@ pub(crate) fn exit_code(reports: &[FileReport], strict: bool) -> u8 {
 /// of it.
 pub(crate) fn describe(report: &FileReport, found: &Found) -> String {
     let verdict = match (&found.refused, &found.normalized, found.class) {
-        (Some(refusal), _, _) => format!("refused {:?}", refusal.reason),
+        (Some(refusal), _, _) => format!("refused {:?} — {}", refusal.reason, refusal.detail),
         (_, Some(normalized), Some(class)) => format!("{normalized}  {}", class.name()),
         _ => String::new(),
     };
@@ -524,6 +524,20 @@ mod tests {
         let report = scan_content("010.1.1.1", "a.txt".into(), "unknown", &plain());
         assert!(
             describe(&report, &report.addresses[0]).contains("refused OctalHazard"),
+            "{}",
+            describe(&report, &report.addresses[0])
+        );
+    }
+
+    /// With stdout silent at a terminal, the sentence that says what to
+    /// go and check lives only in the report, so stderr has to carry it.
+    #[test]
+    fn the_human_line_carries_the_refusal_detail() {
+        let report = scan_content("010.1.1.1", "a.txt".into(), "unknown", &plain());
+        let refusal = report.addresses[0].refused.as_ref().expect("a refusal");
+        assert!(!refusal.detail.is_empty());
+        assert!(
+            describe(&report, &report.addresses[0]).ends_with(&format!(" — {}", refusal.detail)),
             "{}",
             describe(&report, &report.addresses[0])
         );
