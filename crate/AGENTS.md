@@ -146,7 +146,9 @@ locate.rs    joins the three
 
 - **stdout is protocol, stderr is human. There is no `--json` flag.**
   One mode, nothing to misremember, and the human summary is a
-  projection of the same reports so the two cannot drift.
+  projection of the same reports so the two cannot drift. stdout stays
+  silent when it is a terminal, because the stderr listing already
+  covers a person reading it. Anything that can parse gets every report.
 
 - **Every field is always present in a finding, nulls included.** A
   consumer writes one reader and never decides whether an absent key
