@@ -60,7 +60,7 @@ cargo install ips-le
 ## Sixty seconds
 
 ```bash
-ips-le .                                   # every address in the tree, as JSON
+ips-le .                                   # every address in the tree; JSON on stdout when piped
 ips-le --class private --class loopback .  # what should not be reachable
 ips-le --kind cidr infra/                  # every block, with its arithmetic
 ips-le --strict config/                    # fail the build on any ambiguity
@@ -69,6 +69,9 @@ cat access.log | ips-le --stdin --format log
 # the point of the whole thing:
 ips-le . | jq -r '.addresses[] | select(.normalized) | .normalized' | sort -u
 ```
+
+stdout carries the JSON reports only when it is piped or redirected, and
+is left out at a terminal, where stderr lists every address instead.
 
 stderr, in full, for one of the fixture documents that ships with the
 crate — `ips-le fixtures/documents/network.yaml`:

@@ -299,7 +299,7 @@ The same extraction runs over a whole tree from a terminal or a CI step: a Rust 
 </p>
 
 ```bash
-ips-le .                                   # every address in the tree, one JSON line per file
+ips-le .                                   # every address in the tree; one JSON line per file on stdout when piped
 ips-le --class private --class loopback .  # what should not be reachable
 ips-le --kind cidr infra/                  # every block, with its arithmetic
 ips-le --strict config/                    # exit 2 on any ambiguity

@@ -162,10 +162,14 @@ the report, and out of the refusal vocabulary:
 
 ## Output
 
-stdout is protocol: one JSON report per line, one line per file. stderr
-is human, and is a projection of the same reports. **There is no
-`--json` flag** — one mode, nothing to misremember, and the two cannot
-drift.
+stdout is protocol: one JSON report per line, one line per file. When
+stdout is a pipe, a file or a subprocess it carries every report. When it
+is a terminal it carries nothing, because the stderr listing already
+shows every address a person reads there, and the same answer repeated
+as JSON on the same screen is noise. No script can tell the difference,
+since a script is never a terminal. stderr is human, and is a projection
+of the same reports. **There is no `--json` flag** — one mode, nothing
+to misremember, and the two cannot drift.
 
 ```json
 {
