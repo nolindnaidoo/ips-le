@@ -56,6 +56,7 @@ Open a document, run `IPs-LE: Extract Addresses`, and every IPv4 and IPv6 addres
 | **VS Code** | The extraction, in your editor, on a keystroke | [Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.ips-le) |
 | **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/nolindnaidoo/ips-le) |
 | **A terminal or a CI step** | A whole tree, with an exit code | `cargo install ips-le` · [crates.io](https://crates.io/crates/ips-le) |
+| **A terminal, via Node** | The same command line, held to the Rust one byte for byte | `npx ips-le` · [npm](https://www.npmjs.com/package/ips-le) |
 | **Any MCP agent, via Node** | `extract_ips` over stdio | `npx ips-le-mcp` · [npm](https://www.npmjs.com/package/ips-le-mcp) |
 
 ## What it answers
@@ -292,7 +293,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | npx -y ips-le-mcp
 
 ## The CLI
 
-The same extraction runs over a whole tree from a terminal or a CI step: a Rust CLI in [`crate/`](crate/README.md), sharing one corpus with the extension — [`crate/fixtures/`](crate/fixtures/) — so the two can never read an address differently.
+The same extraction runs over a whole tree from a terminal or a CI step: a Rust CLI in [`crate/`](crate/README.md), sharing one corpus with the extension — [`crate/fixtures/`](crate/fixtures/) — so the two can never read an address differently. The same command line also ships on npm as `ips-le`, for a machine with Node and no Rust, and CI holds it to the crate byte for byte on three operating systems.
 
 <p align="center">
   <img src="assets/demos/cli.gif" alt="ips-le in a terminal" style="max-width: 100%; height: auto;" />
@@ -394,12 +395,12 @@ a build only tells you how busy the runner was.
 <!-- coverage:start -->
 | Metric | Coverage |
 | --- | --- |
-| Statements | 86.59% |
-| Branches | 79.59% |
-| Functions | 93.56% |
-| Lines | 88.22% |
+| Statements | 76.05% |
+| Branches | 70.36% |
+| Functions | 78.91% |
+| Lines | 77.91% |
 
-195 test cases across 16 files, plus an integration suite that runs
+213 test cases across 18 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 

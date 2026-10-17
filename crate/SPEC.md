@@ -219,6 +219,15 @@ Finding nothing is an answer. **So is a refusal** — a file of nothing
 but ambiguities exits 1, not 2. `--strict` turns any refusal, and any
 file that could not be read, into a 2.
 
+**Held equal: this surface and the npm one.** The npm package `ips-le`
+installs a command named `ips-le`, built from the extension's `src/cli/`
+over the extension's port of this crate, and nobody running `ips-le` can
+tell which one they have. It is held to everything above byte for byte —
+flags, walk, addresses, refusals, exit codes, stdout, stderr, and every
+reply `ips-le mcp` writes — by `scripts/check-cli-parity.ts`. A change to
+this surface changes `src/cli/` in the same commit. That includes
+`--version`: every surface in the repository carries one version.
+
 ## Formats
 
 `json` `yaml` `toml` `ini` `env` `csv` `tsv` `log`, plus the fallback
