@@ -17,6 +17,9 @@
   <a href="https://www.npmjs.com/package/ips-le-mcp">
     <img src="https://img.shields.io/npm/v/ips-le-mcp?style=for-the-badge&label=MCP%20server&color=blue&logo=npm" alt="ips-le-mcp on npm" />
   </a>
+  <a href="https://www.npmjs.com/package/ips-le">
+    <img src="https://img.shields.io/npm/v/ips-le?style=for-the-badge&label=npm%20CLI&color=blue&logo=npm" alt="ips-le on npm" />
+  </a>
   <a href="https://crates.io/crates/ips-le">
     <img src="https://img.shields.io/crates/v/ips-le?style=for-the-badge&label=Rust%20CLI&color=blue&logo=rust" alt="ips-le on crates.io" />
   </a>
@@ -298,6 +301,22 @@ The same extraction runs over a whole tree from a terminal or a CI step: a Rust 
 <p align="center">
   <img src="assets/demos/cli.gif" alt="ips-le in a terminal" style="max-width: 100%; height: auto;" />
 </p>
+
+**Install it from npm** ([`ips-le`](https://www.npmjs.com/package/ips-le)) **or from crates.io** ([`ips-le`](https://crates.io/crates/ips-le)). Both install the same `ips-le` command.
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/ips-le">
+    <img src="https://img.shields.io/npm/v/ips-le?style=for-the-badge&label=npm%20CLI&color=blue&logo=npm" alt="ips-le on npm" />
+  </a>
+  <a href="https://crates.io/crates/ips-le">
+    <img src="https://img.shields.io/crates/v/ips-le?style=for-the-badge&label=Rust%20CLI&color=blue&logo=rust" alt="ips-le on crates.io" />
+  </a>
+</p>
+
+```bash
+npm install -g ips-le   # or run it once: npx ips-le
+cargo install ips-le
+```
 
 ```bash
 ips-le .                                   # every address in the tree; one JSON line per file on stdout when piped
