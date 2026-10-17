@@ -1,0 +1,48 @@
+{
+	"name": "ips-le",
+	"version": "1.2.0",
+	"description": "Find every IP address, CIDR block and MAC address in a codebase, normalized per RFC 5952 and classified. Refuses what it cannot read unambiguously.",
+	"keywords": [
+		"ip",
+		"ipv4",
+		"ipv6",
+		"cidr",
+		"mac",
+		"network",
+		"audit",
+		"cli",
+		"ips-le",
+		"nolindnaidoo",
+		"letools"
+	],
+	"license": "MIT",
+	"author": {
+		"name": "Nolin Naidoo",
+		"url": "https://nolindnaidoo.com"
+	},
+	"homepage": "https://letools.dev/tools/ips-le",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nolindnaidoo/ips-le.git",
+		"directory": "cli"
+	},
+	"bugs": {
+		"url": "https://github.com/nolindnaidoo/ips-le/issues"
+	},
+	"type": "commonjs",
+	"bin": {
+		"ips-le": "cli.js"
+	},
+	"files": [
+		"cli.js",
+		"README.md",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
+}

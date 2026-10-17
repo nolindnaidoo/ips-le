@@ -55,7 +55,10 @@ ips-le .
 
 ```bash
 cargo install ips-le
+npm install -g ips-le    # the same command, for a machine with Node 20+
 ```
+
+The npm package is the same command line, held to this one byte for byte.
 
 ## Sixty seconds
 

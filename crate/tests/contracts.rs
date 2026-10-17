@@ -413,10 +413,9 @@ fn help_and_version_answer_and_exit_zero() {
     assert!(help.stdout.contains("usage: ips-le"), "{}", help.stdout);
     let version = run(&["--version"]);
     assert_eq!(version.code, 0);
-    assert!(
-        version.stdout.starts_with("ips-le 0."),
-        "{}",
-        version.stdout
+    assert_eq!(
+        version.stdout,
+        format!("ips-le {}\n", env!("CARGO_PKG_VERSION"))
     );
 }
 

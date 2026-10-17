@@ -67,6 +67,14 @@ artifact users actually install.
   walk, exit codes, `--strict` and one JSON line per file, none of which has an
   editor equivalent. That is not drift, and nothing holds them equal — see
   `crate/SPEC.md`.
+- **The npm command line is the crate's surface, not the extension's.**
+  `src/cli/` builds the npm package `ips-le`, which installs the same
+  command the crate does, so it is held to the Rust CLI byte for byte by
+  `bun run check:cli-parity` (after `bun run build:cli` and a `cargo build`
+  in `crate/`), MCP replies included. A change to the crate's flags, walk,
+  exit codes or output changes `src/cli/` in the same commit.
+  `--version` is compared too, because every surface carries one version;
+  see AGENTS.md, Release.
 - **std and jsonc-parser are transcribed, not approximated.** Address
   parsing and the RFC 5952 form are Rust std's (`src/extract/net.ts`); a
   broken JSON document is reported in jsonc-parser 0.33.2's words

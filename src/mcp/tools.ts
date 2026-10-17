@@ -31,7 +31,7 @@ const DESCRIPTION =
 	'Extract every IP address, CIDR block and MAC address from a document, normalized and classified. IPv6 is canonicalized per RFC 5952, so 2001:0db8::0001 and 2001:db8::1 come back as one address rather than two. Each finding carries its line, column and — for JSON, YAML, TOML, INI, dotenv, CSV and logs — the key it sits under. Text this cannot read unambiguously is returned as a named refusal, never as a guess: a leading zero (octal or decimal, depending on the resolver), a dotted triple that may be a version, a bare integer in an address field. Resolves no names, geolocates nothing, opens no sockets.';
 
 /** An optional array of names; a name nothing recognises is an error, never a pass-through. */
-function readFilter<T extends string>(
+export function readFilter<T extends string>(
 	args: Record<string, unknown>,
 	name: string,
 	allowed: readonly T[],
