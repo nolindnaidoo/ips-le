@@ -36,5 +36,6 @@
 	"Not read: {0}. The {1} settings change this.": "Tidak dibaca: {0}. Pengaturan {1} mengubah hal ini.",
 	"{0} address(es) in {1} file(s)": "{0} alamat dalam {1} file",
 	"Addresses": "Alamat",
-	"Could not be read": "Tidak dapat dibaca"
+	"Could not be read": "Tidak dapat dibaca",
+	"{0} file(s) could not be read.": "{0} file tidak dapat dibaca."
 }

@@ -36,5 +36,6 @@
 	"Not read: {0}. The {1} settings change this.": "Nicht gelesen: {0}. Die Einstellungen {1} ändern das.",
 	"{0} address(es) in {1} file(s)": "{0} Adresse(n) in {1} Datei(en)",
 	"Addresses": "Adressen",
-	"Could not be read": "Nicht lesbar"
+	"Could not be read": "Nicht lesbar",
+	"{0} file(s) could not be read.": "{0} Datei(en) konnten nicht gelesen werden."
 }

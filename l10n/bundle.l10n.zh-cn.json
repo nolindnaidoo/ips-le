@@ -36,5 +36,6 @@
 	"Not read: {0}. The {1} settings change this.": "未读取：{0}。可通过 {1} 设置更改。",
 	"{0} address(es) in {1} file(s)": "{1} 个文件中有 {0} 个地址",
 	"Addresses": "地址",
-	"Could not be read": "无法读取"
+	"Could not be read": "无法读取",
+	"{0} file(s) could not be read.": "{0} 个文件无法读取。"
 }

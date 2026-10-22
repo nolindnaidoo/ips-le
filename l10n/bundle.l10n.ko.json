@@ -36,5 +36,6 @@
 	"Not read: {0}. The {1} settings change this.": "읽지 않음: {0}. {1} 설정에서 변경할 수 있습니다.",
 	"{0} address(es) in {1} file(s)": "파일 {1}개에 주소 {0}개",
 	"Addresses": "주소",
-	"Could not be read": "읽을 수 없음"
+	"Could not be read": "읽을 수 없음",
+	"{0} file(s) could not be read.": "파일 {0}개를 읽을 수 없습니다."
 }

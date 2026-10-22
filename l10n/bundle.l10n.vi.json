@@ -36,5 +36,6 @@
 	"Not read: {0}. The {1} settings change this.": "Không đọc: {0}. Các cài đặt {1} thay đổi điều này.",
 	"{0} address(es) in {1} file(s)": "{0} địa chỉ trong {1} tệp",
 	"Addresses": "Địa chỉ",
-	"Could not be read": "Không thể đọc"
+	"Could not be read": "Không thể đọc",
+	"{0} file(s) could not be read.": "Không thể đọc {0} tệp."
 }
