@@ -37,5 +37,6 @@
 	"{0} address(es) in {1} file(s)": "{0} adresse(s) dans {1} fichier(s)",
 	"Addresses": "Adresses",
 	"Could not be read": "Illisible",
-	"{0} file(s) could not be read.": "{0} fichier(s) n'ont pas pu être lus."
+	"{0} file(s) could not be read.": "{0} fichier(s) n'ont pas pu être lus.",
+	"IPs-LE could not finish: {0}": "IPs-LE n'a pas pu terminer : {0}"
 }

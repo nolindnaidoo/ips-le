@@ -37,5 +37,6 @@
 	"{0} address(es) in {1} file(s)": "파일 {1}개에 주소 {0}개",
 	"Addresses": "주소",
 	"Could not be read": "읽을 수 없음",
-	"{0} file(s) could not be read.": "파일 {0}개를 읽을 수 없습니다."
+	"{0} file(s) could not be read.": "파일 {0}개를 읽을 수 없습니다.",
+	"IPs-LE could not finish: {0}": "IPs-LE을(를) 완료할 수 없습니다: {0}"
 }

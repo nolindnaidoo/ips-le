@@ -37,5 +37,6 @@
 	"{0} address(es) in {1} file(s)": "Адрес: {0}, файлів: {1}",
 	"Addresses": "Адреси",
 	"Could not be read": "Не вдалося прочитати",
-	"{0} file(s) could not be read.": "Не вдалося прочитати файлів: {0}."
+	"{0} file(s) could not be read.": "Не вдалося прочитати файлів: {0}.",
+	"IPs-LE could not finish: {0}": "IPs-LE не вдалося завершити: {0}"
 }
