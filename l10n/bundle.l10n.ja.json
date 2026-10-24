@@ -36,5 +36,7 @@
 	"Not read: {0}. The {1} settings change this.": "読み取られていないもの: {0}。設定 {1} で変更できます。",
 	"{0} address(es) in {1} file(s)": "{1} 個のファイルに {0} 個のアドレス",
 	"Addresses": "アドレス",
-	"Could not be read": "読み取れません"
+	"Could not be read": "読み取れません",
+	"{0} file(s) could not be read.": "{0} 個のファイルを読み取れませんでした。",
+	"IPs-LE could not finish: {0}": "IPs-LE を完了できませんでした: {0}"
 }

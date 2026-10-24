@@ -36,5 +36,7 @@
 	"Not read: {0}. The {1} settings change this.": "Not read: {0}. The {1} settings change this.",
 	"{0} address(es) in {1} file(s)": "{0} address(es) in {1} file(s)",
 	"Addresses": "Addresses",
-	"Could not be read": "Could not be read"
+	"Could not be read": "Could not be read",
+	"{0} file(s) could not be read.": "{0} file(s) could not be read.",
+	"IPs-LE could not finish: {0}": "IPs-LE could not finish: {0}"
 }

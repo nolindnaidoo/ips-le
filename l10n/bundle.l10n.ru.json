@@ -36,5 +36,7 @@
 	"Not read: {0}. The {1} settings change this.": "Не прочитано: {0}. Это меняют параметры {1}.",
 	"{0} address(es) in {1} file(s)": "Адресов: {0}, файлов: {1}",
 	"Addresses": "Адреса",
-	"Could not be read": "Не удалось прочитать"
+	"Could not be read": "Не удалось прочитать",
+	"{0} file(s) could not be read.": "Не удалось прочитать файлов: {0}.",
+	"IPs-LE could not finish: {0}": "IPs-LE не удалось завершить: {0}"
 }

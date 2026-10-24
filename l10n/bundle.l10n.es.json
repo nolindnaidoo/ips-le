@@ -36,5 +36,7 @@
 	"Not read: {0}. The {1} settings change this.": "No leído: {0}. Los ajustes {1} cambian esto.",
 	"{0} address(es) in {1} file(s)": "{0} dirección(es) en {1} archivo(s)",
 	"Addresses": "Direcciones",
-	"Could not be read": "No se pudo leer"
+	"Could not be read": "No se pudo leer",
+	"{0} file(s) could not be read.": "{0} archivo(s) no se pudieron leer.",
+	"IPs-LE could not finish: {0}": "IPs-LE no pudo terminar: {0}"
 }
