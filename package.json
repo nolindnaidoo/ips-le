@@ -1,7 +1,7 @@
 {
 	"name": "ips-le",
 	"publisher": "nolindnaidoo",
-	"displayName": "IPs-LE",
+	"displayName": "IPs-LE: IP Address, CIDR & MAC Extractor",
 	"description": "Extract every IP address, CIDR block and MAC, normalized and classified by scope",
 	"version": "1.2.0",
 	"license": "MIT",

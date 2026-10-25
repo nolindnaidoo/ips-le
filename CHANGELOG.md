@@ -13,6 +13,14 @@ repository while it held the CLI alone.
 
 ## [Unreleased]
 
+### Changed
+
+- **The listing carries the words people search for.** Open VSX ranks a
+  match in the name five times a match in the description, and "IPs-LE" was
+  the one name in the family with no subtitle, so "cidr" was a keyword only
+  and the extension sat 6th among 11 results for it. The name is "IPs-LE: IP
+  Address, CIDR & MAC Extractor".
+
 ### Fixed
 
 - A number setting cleared to an empty string or null read as 0 and was
